@@ -185,7 +185,8 @@ export function Studio() {
     [search, setSearch] = useState(""),
     [sort, setSort] = useState("recent"),
     [deleting, setDeleting] = useState<RecordCourse | null>(null),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [editorDirty, setEditorDirty] = useState(false);
   const notify = (m: string) => {
     setToast(m);
     window.setTimeout(() => setToast(""), 4500);
@@ -212,7 +213,7 @@ export function Studio() {
   }, [admin, load]);
   function navigate(p: string) {
     if (
-      selected &&
+      editorDirty &&
       !window.confirm(
         "Return to the dashboard? Any unsaved changes will be lost.",
       )
@@ -277,6 +278,11 @@ export function Studio() {
           active={page}
           onNavigate={navigate}
           onLogout={async () => {
+            if (
+              editorDirty &&
+              !window.confirm("Sign out without saving your changes?")
+            )
+              return;
             try {
               await api("/api/auth", "DELETE");
               setAdmin(null);
@@ -295,11 +301,13 @@ export function Studio() {
                 : undefined)
           }
         >
-          {error && <ErrorState message={error} retry={() => setError("")} />}{" "}
+          {error && <ErrorState message={error} retry={() => load()} />}{" "}
           {selected ? (
             <CourseEditor
               key={selected.id}
               initial={selected.data}
+              courseId={selected.id}
+              revision={selected.revision}
               onBack={() => {
                 setSelected(null);
                 load();
@@ -307,6 +315,7 @@ export function Studio() {
               onSave={save}
               onPreview={setPreview}
               onError={setError}
+              onDirtyChange={setEditorDirty}
             />
           ) : page === "courses" ? (
             <>
@@ -568,8 +577,9 @@ export function Studio() {
               </div>
               <div className="notice">
                 Phase 1 includes content, theme editing and temporary learner
-                preview. SCORM publishing, advanced canvas editing, recovery,
-                stars and course maps are future milestones.
+                preview. Publishing supports SCORM 1.2 and SCORM 2004 4th
+                Edition. Advanced canvas editing, course maps and multi-SCO
+                sequencing remain future milestones.
               </div>
               <Button onClick={() => setPage("courses")}>
                 Go to your courses

@@ -2,7 +2,7 @@
 
 A working Phase 1 authoring studio. Courses are independent projects; Daimler EHS is editable demonstration content, not a platform restriction.
 
-**Acceptance review:** [Phase 1 report](docs/phase1-acceptance.md) records a P1 save-state defect and three P2 findings. Normal workflows pass, but reliable-authoring sign-off is conditional. No Phase 2 features or non-P0 application fixes were added in that review.
+**Current milestone:** dual SCORM publishing is implemented with [phase-by-phase reviews](docs/scorm/phase-reviews.md). The earlier save-state defect is fixed. Automated validation passes; SCORM Cloud/Cornerstone acceptance remains pending external access.
 
 ## Run locally
 
@@ -63,11 +63,11 @@ The browser test starts the development server if none is running. It creates, e
 
 ## Intentionally incomplete / future milestones
 
-SCORM 1.2 publishing, advanced freeform canvas, full multi-level game, multi-select, sequencing, recovery, stars and course maps are not implemented. There is no learner authentication or persistent learner progress, public course publishing, collaboration, password recovery, arbitrary external media URLs, rich-text HTML editor or cloud asset storage. Raster images are embedded in course JSON for this MVP; large media libraries should use object storage. Preview does not enforce a pedagogical progression lock. The application does not imply content or corporate brand approval.
+Advanced freeform canvas, a full authored six-level course, multi-select, advanced multi-SCO sequencing and course maps are not implemented. Basic recovery, level stars and shared multi-level life are now implemented. There is no standalone learner authentication, standalone server-side learner-progress storage, hosted public course URL, collaboration, password recovery, arbitrary external media URLs, rich-text HTML editor or cloud asset storage. Raster images are embedded in course JSON for this MVP; large media libraries should use object storage. Preview does not enforce a pedagogical progression lock. The application does not imply content or corporate brand approval.
 
 ## Architecture and extension points
 
-`src/lib/course.ts` is the canonical validated course document, stored as a JSONB snapshot on an owned `Course` record. Content (`levels/slides`) and presentation (`theme/header`) are separate. Slide arrays determine order; UUIDs are stable identities. `submitAnswer` is a pure game-state transition independent of the map, header and persistence. New interaction kinds can extend the discriminant and renderer; future export adapters can consume the course document without reading editor UI state.
+`src/lib/course.ts` is the canonical validated course document, stored as a JSONB snapshot on an owned `Course` record. Content (`levels/slides`) and presentation (`theme/header`) are separate. Slide arrays determine order; UUIDs are stable identities. `src/lib/game.ts` owns the canonical pure game-state transitions independently of maps, headers and persistence. New interaction kinds can extend the discriminant and renderer; publishing adapters consume the course document without reading editor UI state.
 
 `src/app/api` enforces authentication, ownership, input validation and optimistic revisions. `src/components/editor.tsx` edits the canonical document and `learner.tsx` renders it using only learner tokens. `src/components/ui` contains the shared shadcn-style cva/Tailwind/Radix primitives; `components.json` configures shadcn/ui conventions. See [component usage](docs/components.md).
 
@@ -84,3 +84,13 @@ Generated from the real application by Playwright:
 - [Mobile dashboard](public/screenshots/mobile-dashboard.png)
 
 Daimler EHS content, example answer keys, illustrative pillars and both brand presets are explicitly **demonstration/provisional** and require qualified approval before training use.
+
+## Dual SCORM publishing
+
+Open a course, save it, then use **Publishing**. Choose an individual level or full course and SCORM 1.2 or SCORM 2004 4th Edition. Validate the saved revision, then export the ZIP. Unsaved drafts cannot export; stale revisions return a conflict. Both versions reuse the same learner/game model. Questions can be mandatory or optional with a configured life penalty; recovery slides and course defaults are editable. Mandatory competencies must be passed before completion.
+
+Regenerate the four seeded demo packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
+
+`npm test` runs 40 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 13 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+
+SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents need no migration and remain valid.

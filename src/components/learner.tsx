@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- user-uploaded data URLs render without image optimization */
-import { useState, type CSSProperties } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,22 +9,104 @@ import {
   CheckCircle2,
   XCircle,
   Layers,
+  Star,
 } from "lucide-react";
-import { type CourseData, submitAnswer, type GameState } from "@/lib/course";
+import { type CourseData } from "@/lib/course";
+import {
+  initialGame,
+  visit,
+  answerQuestion,
+  recoverLife,
+  retryLevel,
+  finishGame,
+  assessment,
+} from "@/lib/game";
+import {
+  discoverApi,
+  Scorm12Adapter,
+  Scorm2004Adapter,
+} from "@/lib/scorm/adapters";
+import { ScormSessionManager } from "@/lib/scorm/session";
+import type { ScormVersion } from "@/lib/scorm/types";
 export function Learner({
   course,
   onClose,
+  tracking,
 }: {
   course: CourseData;
   onClose: () => void;
+  tracking?: { version: ScormVersion; fingerprint: string };
 }) {
   const slides = course.levels.flatMap((l) =>
     l.slides.map((s) => ({ ...s, levelTitle: l.title })),
   );
-  const [index, setIndex] = useState(0),
-    [answer, setAnswer] = useState(""),
+  const [game, setGame] = useState(() => visit(course, initialGame(), 0));
+  const [answer, setAnswer] = useState(""),
     [feedback, setFeedback] = useState<boolean | null>(null),
-    [game, setGame] = useState<GameState>({ life: 100, penalized: [] });
+    [trackingError, setTrackingError] = useState(""),
+    [ready, setReady] = useState(!tracking);
+  const manager = useRef<ScormSessionManager | null>(null),
+    latest = useRef(game);
+  latest.current = game;
+  const index = game.index;
+  function persist() {
+    if (!manager.current) return;
+    try {
+      manager.current.save(latest.current);
+      setTrackingError("");
+    } catch (e) {
+      setTrackingError((e as Error).message);
+    }
+  }
+  useEffect(() => {
+    if (!tracking) return;
+    try {
+      const api = discoverApi(tracking.version);
+      if (!api)
+        throw new Error(
+          "LMS API unavailable. Practice only: progress is not saved.",
+        );
+      const adapter =
+        tracking.version === "1.2"
+          ? new Scorm12Adapter(api)
+          : new Scorm2004Adapter(api);
+      const session = new ScormSessionManager(
+        adapter,
+        course,
+        tracking.fingerprint,
+      );
+      const restored = session.initialize();
+      manager.current = session;
+      setGame(visit(course, restored, restored.index));
+    } catch (e) {
+      setTrackingError((e as Error).message);
+    }
+    setReady(true);
+    const exit = () => {
+      try {
+        manager.current?.terminate(latest.current);
+      } catch (e) {
+        setTrackingError((e as Error).message);
+      }
+    };
+    const hidden = () => {
+      if (document.visibilityState === "hidden") persist();
+    };
+    const timer = window.setInterval(persist, 15000);
+    window.addEventListener("pagehide", exit);
+    document.addEventListener("visibilitychange", hidden);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("pagehide", exit);
+      document.removeEventListener("visibilitychange", hidden);
+    };
+    // The package/course is immutable for the lifetime of one learner session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (ready && tracking) persist();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, ready]);
   const slide = slides[index],
     t = course.theme;
   const style = {
@@ -49,7 +131,7 @@ export function Learner({
       : undefined,
   } as CSSProperties;
   function go(i: number) {
-    setIndex(i);
+    setGame((g) => visit(course, g, i));
     setAnswer("");
     setFeedback(null);
   }
@@ -59,11 +141,33 @@ export function Learner({
         <span>
           LEARNER PREVIEW <span>· Temporary session</span>
         </span>
-        <button onClick={onClose}>
+        <button
+          onClick={() => {
+            if (tracking) {
+              try {
+                manager.current?.terminate(game);
+              } catch (e) {
+                setTrackingError((e as Error).message);
+                return;
+              }
+            }
+            onClose();
+          }}
+        >
           <ArrowLeft />
-          Back to editor
+          {tracking ? "Save and exit" : "Back to editor"}
         </button>
       </div>
+      {trackingError && (
+        <div className="tracking-alert" role="alert">
+          {trackingError}{" "}
+          {manager.current ? (
+            <button onClick={persist}>Retry LMS save</button>
+          ) : (
+            <span>Reload the lesson after checking the LMS launch.</span>
+          )}
+        </div>
+      )}
       <header className="learner-header">
         <div>
           {course.header.showLogo &&
@@ -86,9 +190,17 @@ export function Learner({
       <div className="learner-body">
         <aside className="learner-nav">
           <small>YOUR LEARNING JOURNEY</small>
-          {course.levels.map((l) => (
+          {course.levels.map((l, levelIndex) => (
             <div key={l.id}>
-              <h3>{l.title}</h3>
+              <h3>
+                {l.title}{" "}
+                {game.stars.includes(levelIndex) && (
+                  <Star
+                    className="earned-star"
+                    aria-label="Level star earned"
+                  />
+                )}
+              </h3>
               {l.slides.map((s) => {
                 const i = slides.findIndex((x) => x.id === s.id);
                 return (
@@ -104,16 +216,19 @@ export function Learner({
               })}
             </div>
           ))}
-          <button
-            className="reset"
-            onClick={() => {
-              setGame({ life: 100, penalized: [] });
-              go(0);
-            }}
-          >
-            <RotateCcw />
-            Restart preview
-          </button>
+          {!tracking && (
+            <button
+              className="reset"
+              onClick={() => {
+                setGame(visit(course, initialGame(), 0));
+                setAnswer("");
+                setFeedback(null);
+              }}
+            >
+              <RotateCcw />
+              Restart preview
+            </button>
+          )}
         </aside>
         <section className="learner-stage">
           {slide ? (
@@ -160,6 +275,7 @@ export function Learner({
                             name="answer"
                             value={o.id}
                             checked={answer === o.id}
+                            disabled={game.life === 0 || game.finished}
                             onChange={() => {
                               setAnswer(o.id);
                               setFeedback(null);
@@ -172,9 +288,9 @@ export function Learner({
                     </fieldset>
                     <button
                       className="learner-primary"
-                      disabled={!answer}
+                      disabled={!answer || game.life === 0 || game.finished}
                       onClick={() => {
-                        setGame((g) => submitAnswer(g, slide, answer));
+                        setGame((g) => answerQuestion(course, g, answer));
                         setFeedback(answer === slide.correctId);
                       }}
                     >
@@ -196,13 +312,53 @@ export function Learner({
                           </p>
                           {!feedback && (
                             <small>
-                              One 25% life penalty per question in this preview.
+                              One{" "}
+                              {slide.lifePenalty ?? course.rules?.penalty ?? 25}
+                              % life penalty per question per level attempt.
                             </small>
                           )}
                         </div>
                       </div>
                     )}
                   </>
+                )}
+                {slide.kind === "recovery" && (
+                  <button
+                    className="learner-primary"
+                    disabled={
+                      game.life === 0 ||
+                      game.finished ||
+                      game.recovered.includes(index)
+                    }
+                    onClick={() => setGame((g) => recoverLife(course, g))}
+                  >
+                    Restore {slide.lifeRecovery ?? course.rules?.recovery ?? 25}
+                    % life
+                  </button>
+                )}
+                {game.life === 0 && (
+                  <div role="alert" className="feedback">
+                    <p>
+                      Life exhausted. Retry this level; previously earned level
+                      stars are retained.
+                    </p>
+                    <button
+                      className="learner-primary"
+                      onClick={() => {
+                        setGame((g) =>
+                          visit(
+                            course,
+                            retryLevel(course, g),
+                            retryLevel(course, g).index,
+                          ),
+                        );
+                        setAnswer("");
+                        setFeedback(null);
+                      }}
+                    >
+                      Retry current level
+                    </button>
+                  </div>
                 )}
               </article>
               <div className="learner-pagination">
@@ -228,6 +384,37 @@ export function Learner({
               <p>Add a slide in the course editor to preview your course.</p>
             </div>
           )}
+          <div className="finish-panel">
+            <span>
+              {game.stars.length} / {course.levels.length} level stars earned
+            </span>
+            <button
+              className="learner-primary"
+              disabled={
+                game.finished ||
+                !assessment(course, game).eligible ||
+                !!(tracking && trackingError)
+              }
+              onClick={() => setGame((g) => finishGame(course, g))}
+            >
+              {game.finished ? "Learning complete" : "Finish learning"}
+            </button>
+            {!assessment(course, game).eligible && (
+              <p>
+                Visit all slides and pass every mandatory question before
+                completing.
+              </p>
+            )}
+            {game.finished && (
+              <p role="status">
+                {tracking && trackingError
+                  ? "Completion has not been saved to the LMS."
+                  : tracking
+                    ? "Completion submitted to the LMS."
+                    : "Preview complete. Progress is temporary."}
+              </p>
+            )}
+          </div>
           <p className="demo-note">
             Demonstration content · Safety content and provisional brand colors
             require approval before use.

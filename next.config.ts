@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
-  serverExternalPackages: ["bcryptjs"],
+  serverExternalPackages: ["bcryptjs", "esbuild"],
   devIndicators: false,
   async headers() {
     return [

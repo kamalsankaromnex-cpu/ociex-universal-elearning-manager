@@ -1,0 +1,70 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { CourseExportService } from "../src/lib/publishing/service";
+import { validateManifest } from "./validate-scorm";
+import { strFromU8 } from "fflate";
+const db = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+});
+async function main() {
+  const admin = await db.admin.findUniqueOrThrow({
+      where: { email: process.env.ADMIN_EMAIL!.toLowerCase() },
+    }),
+    record = await db.course.findFirstOrThrow({
+      where: { adminId: admin.id, title: "Daimler EHS" },
+    });
+  const data = record.data as { levels: { id: string }[] };
+  await mkdir("deliverables/scorm", { recursive: true });
+  const report = [];
+  for (const scope of ["level", "course"] as const)
+    for (const version of ["1.2", "2004"] as const) {
+      const result = await new CourseExportService().export(
+        admin.id,
+        record.id,
+        {
+          revision: record.revision,
+          scope,
+          version,
+          levelId: data.levels[0].id,
+        },
+      );
+      const validation = validateManifest(
+        strFromU8(result.files["imsmanifest.xml"]),
+        version,
+      );
+      if (!validation.valid || validation.errors.length)
+        throw new Error(JSON.stringify(validation));
+      const filename = `Daimler-EHS-${scope === "level" ? "Level-01" : "Full-Course"}-SCORM-${version === "1.2" ? "1.2" : "2004-4th"}.zip`;
+      await writeFile(`deliverables/scorm/${filename}`, result.zip);
+      report.push({
+        file: filename,
+        ...result.metadata,
+        schemaValidation: validation,
+        bytes: result.zip.length,
+        packagedFiles: Object.keys(result.files).length,
+      });
+    }
+  await writeFile(
+    "deliverables/scorm/manifest-validation.json",
+    JSON.stringify(report, null, 2) + "\n",
+  );
+  console.log(
+    JSON.stringify(
+      report.map((r) => ({
+        file: r.file,
+        revision: r.revision,
+        valid: r.schemaValidation.valid,
+        bytes: r.bytes,
+      })),
+      null,
+      2,
+    ),
+  );
+}
+main()
+  .catch((e) => {
+    console.error(e instanceof Error ? e.message : "Export failed");
+    process.exitCode = 1;
+  })
+  .finally(() => db.$disconnect());

@@ -4,7 +4,9 @@ const media = z
   .max(500000)
   .refine(
     (v) =>
-      !v || /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v),
+      !v ||
+      /^assets\/media\/[a-f0-9]{64}\.(png|jpeg|webp|gif)$/.test(v) ||
+      /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v),
     "Upload a supported raster image",
   );
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
@@ -32,7 +34,7 @@ export const slideSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(1).max(200),
-    kind: z.enum(["content", "single-choice"]),
+    kind: z.enum(["content", "single-choice", "recovery"]),
     text: z.string().max(10000),
     image: media,
     background: z.union([color, z.literal("")]),
@@ -40,6 +42,9 @@ export const slideSchema = z
       .array(z.object({ id: z.string(), text: z.string().min(1).max(500) }))
       .min(2)
       .max(6),
+    mandatory: z.boolean().optional(),
+    lifePenalty: z.number().int().min(0).max(100).optional(),
+    lifeRecovery: z.number().int().min(0).max(100).optional(),
     correctId: z.string(),
     correctFeedback: z.string().min(1).max(1000),
     incorrectFeedback: z.string().min(1).max(1000),
@@ -55,6 +60,13 @@ export const courseSchema = z
   .object({
     title: z.string().trim().min(1).max(160),
     description: z.string().max(1000),
+    rules: z
+      .object({
+        penalty: z.number().int().min(0).max(100),
+        recovery: z.number().int().min(0).max(100),
+        passScore: z.number().min(0).max(100),
+      })
+      .optional(),
     theme: themeSchema,
     header: z.object({
       title: z.string().max(160),
@@ -185,22 +197,4 @@ export function demoCourse(): CourseData {
     },
   ];
   return c;
-}
-export type GameState = { life: number; penalized: string[] };
-export function submitAnswer(
-  state: GameState,
-  slide: Slide,
-  answer: string,
-): GameState {
-  if (
-    slide.kind !== "single-choice" ||
-    !slide.options.some((o) => o.id === answer)
-  )
-    return state;
-  if (answer === slide.correctId || state.penalized.includes(slide.id))
-    return state;
-  return {
-    life: Math.max(0, state.life - 25),
-    penalized: [...state.penalized, slide.id],
-  };
 }

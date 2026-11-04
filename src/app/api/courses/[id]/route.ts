@@ -24,7 +24,7 @@ export async function PUT(
       { error: parsed.error.issues[0].message },
       { status: 400 },
     );
-  const result = await db.course.updateMany({
+  const result = await db.course.updateManyAndReturn({
     where: { id, adminId: admin.id, revision: parsed.data.revision },
     data: {
       title: parsed.data.data.title,
@@ -32,14 +32,12 @@ export async function PUT(
       revision: { increment: 1 },
     },
   });
-  if (!result.count)
+  if (!result.length)
     return NextResponse.json(
       { error: "Course changed or unavailable. Reopen it before saving." },
       { status: 409 },
     );
-  return NextResponse.json(
-    await db.course.findFirst({ where: { id, adminId: admin.id } }),
-  );
+  return NextResponse.json(result[0]);
 }
 export async function DELETE(
   req: Request,

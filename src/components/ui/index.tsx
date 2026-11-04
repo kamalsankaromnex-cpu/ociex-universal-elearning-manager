@@ -151,10 +151,12 @@ export function Tabs({
   value,
   onChange,
   items,
+  children,
 }: {
   value: string;
   onChange: (v: string) => void;
   items: { value: string; label: string; icon?: ReactNode }[];
+  children?: ReactNode;
 }) {
   return (
     <RadixTabs.Root value={value} onValueChange={onChange}>
@@ -166,6 +168,7 @@ export function Tabs({
           </RadixTabs.Trigger>
         ))}
       </RadixTabs.List>
+      <RadixTabs.Content value={value}>{children}</RadixTabs.Content>
     </RadixTabs.Root>
   );
 }

@@ -2719,3 +2719,71 @@ footer {
     font-size: 11px;
   }
 }
+.brand-button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.tracking-alert {
+  padding: 16px;
+  background: var(--l-section, var(--surface));
+  color: var(--l-text, var(--text));
+  border: 2px solid var(--error);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tracking-alert button {
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+}
+.finish-panel {
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  color: var(--l-text);
+}
+.finish-panel p {
+  width: 100%;
+  color: var(--l-muted);
+  font-size: 12px;
+  margin: 0;
+}
+.earned-star {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  color: var(--l-star);
+  fill: var(--l-star);
+  vertical-align: middle;
+}
+.export-results {
+  margin-top: 22px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+.export-results p {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+.export-logs {
+  margin-top: 22px;
+  font-size: 12px;
+  color: var(--secondary);
+}
+.export-logs summary {
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.export-logs li {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}

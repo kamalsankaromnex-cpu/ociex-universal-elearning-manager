@@ -1,0 +1,4 @@
+# Preserve upstream SCORM schema bytes and their legacy whitespace.
+# XML/XSD validation and SHA-256 checks remain enforced separately.
+vendor/scorm/*/*.xsd -text -whitespace
+vendor/scorm/*/*.dtd -text -whitespace

@@ -1,5 +1,7 @@
 # Phase 1 acceptance review — 4 November 2026
 
+> Historical review of commit `ee5682c`. F01–F04 are addressed in the subsequent publishing work. See the [current phase reviews](scorm/phase-reviews.md); the historical browser reproducer is not the current acceptance suite.
+
 **Decision: conditional acceptance for demonstration/development; reliable-authoring sign-off is blocked by F01.** The ordinary Phase 1 workflows pass, but a reproducible P1 save-state defect can falsely report that newer edits are persisted. Resolve F01 in a separately authorized Phase 1 correction before relying on the editor for real course production or building Phase 2 on its save lifecycle.
 
 **P0 defects verified: 0. Application fixes made: 0. Phase 2 features added: 0.** The requested P0-only limit was respected. Application source, migrations and existing setup helpers were checked against a pre-review SHA-256 manifest and left unchanged. Review changes comprise this report, review evidence/screenshots, the independent walkthrough and documentation links. Existing browser tests regenerate their original screenshots.

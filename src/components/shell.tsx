@@ -11,7 +11,6 @@ import {
   ChevronRight,
   CircleHelp,
 } from "lucide-react";
-import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Breadcrumbs, Drawer, IconButton } from "./ui";
 export function Sidebar({
@@ -23,14 +22,18 @@ export function Sidebar({
 }) {
   return (
     <>
-      <Link className="brand" href="/" aria-label="Coursecraft home">
+      <button
+        className="brand brand-button"
+        onClick={() => onNavigate("courses")}
+        aria-label="Coursecraft home"
+      >
         <span className="brand-icon">
           <Layers />
         </span>
         <span>
           coursecraft<small>LEARNING STUDIO</small>
         </span>
-      </Link>
+      </button>
       <div className="workspace-label">WORKSPACE</div>
       <nav className="side-nav">
         <button
