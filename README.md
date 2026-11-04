@@ -1,8 +1,8 @@
 # Coursecraft — Universal eLearning Course Manager
 
-A working Phase 1 authoring studio. Courses are independent projects; Daimler EHS is editable demonstration content, not a platform restriction.
+A working authoring studio with Phase 2 publishing management. Courses are independent projects; Daimler EHS is editable demonstration content, not a platform restriction.
 
-**Current milestone:** dual SCORM publishing is implemented with [phase-by-phase reviews](docs/scorm/phase-reviews.md). The earlier save-state defect is fixed. Automated validation passes; SCORM Cloud/Cornerstone acceptance remains pending external access.
+**Current milestone:** Phase 2 adds immutable export history, configurable scoring and artifact-bound LMS acceptance records. See the [acceptance report, screenshots and limitations](docs/phase2/acceptance-report.md). Historical user SCORM Cloud reports cover the earlier baseline; new Phase 2 packages require external retesting.
 
 ## Run locally
 
@@ -42,6 +42,7 @@ npm run db:seed
 npm run typecheck
 npm run lint
 npm test
+npm run test:migrations # uses a disposable database; requires CREATE DATABASE privilege
 npm run build
 # Use installed Chromium in the prepared cloud environment:
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
@@ -93,10 +94,21 @@ Open a course, save it, then use **Publishing**. Choose an individual level or f
 
 Regenerate the four seeded demo packages, two multi-level QA packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
 
-`npm test` runs 69 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 22 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+`npm test` runs 84 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 26 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
 
-SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents need no migration and remain valid.
+SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents remain valid with legacy scoring defaults. Apply the additive Phase 2 database migration to create archive and acceptance tables; course JSON and revisions are preserved.
 
 Latest reliability fixes and the ready-to-import two-level QA packages are documented in [remaining SCORM checks](docs/scorm/remaining-checks.md). Completed registrations reopen in read-only review; failed saves warn before reload. The user supplied real SCORM Cloud Level 01 completion/passed/100% evidence; broader external LMS acceptance remains separate.
 
 SCORM 2004 primary-objective reporting correction: [evidence, validation and retest steps](docs/scorm/fix-primary-objective.md).
+
+## Phase 2 publishing workflow
+
+1. Save the course. In Course settings choose the passing threshold, optional-question scoring and unanswered-question policy; each question also has a scored/unscored control independent of mandatory completion.
+2. Open Publishing, choose level/full course and the SCORM edition, then validate the saved revision and export. Every archive records its immutable artifact ID, source revision, format/scope, timestamp, status, metadata, validation and SHA-256. A final database lock/check prevents publication under a changed revision.
+3. Re-download that exact ZIP from Export history after any later edits. A failed request after a valid snapshot is retained as a failed history entry. History is authenticated and scoped to the course owner.
+4. Import the exact archived ZIP into the target LMS. Record platform, edition, LMS version/build, tester/date, result and redacted evidence with Record LMS test. A reported pass requires actual import, launch and debug verification. Add a new append-only record to correct an earlier entry.
+
+`npm run export:demo` now archives the four saved Daimler EHS outputs and includes their artifact IDs in the generated reports. The two QA ZIPs remain standalone fixtures and do not insert course projects. `npm run test:migrations` checks the complete migration chain and immutability/evidence constraints in a disposable database. The ordinary migration does not require permission to create a database.
+
+Archives use PostgreSQL bytea and are retained until their course is explicitly deleted. Include them in backups and monitor storage growth. Acceptance evidence is plain text, not uploaded attachments or independently verified LMS integration. See the full [Phase 2 acceptance report](docs/phase2/acceptance-report.md) for remaining limits and the [prepared PR description](docs/phase2/pull-request.md).

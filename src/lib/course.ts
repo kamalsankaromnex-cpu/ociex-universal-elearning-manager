@@ -39,10 +39,13 @@ export const slideSchema = z
     image: media,
     background: z.union([color, z.literal("")]),
     options: z
-      .array(z.object({ id: z.string(), text: z.string().min(1).max(500) }))
+      .array(
+        z.object({ id: z.string(), text: z.string().trim().min(1).max(500) }),
+      )
       .min(2)
       .max(6),
     mandatory: z.boolean().optional(),
+    scored: z.boolean().optional(),
     lifePenalty: z.number().int().min(0).max(100).optional(),
     lifeRecovery: z.number().int().min(0).max(100).optional(),
     correctId: z.string(),
@@ -65,6 +68,8 @@ export const courseSchema = z
         penalty: z.number().int().min(0).max(100),
         recovery: z.number().int().min(0).max(100),
         passScore: z.number().min(0).max(100),
+        optionalScoring: z.enum(["include", "exclude"]).optional(),
+        unansweredScoring: z.enum(["zero", "exclude-optional"]).optional(),
       })
       .optional(),
     theme: themeSchema,

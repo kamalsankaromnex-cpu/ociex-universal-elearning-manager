@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentAdmin, sameOrigin } from "@/lib/auth";
+import { publishCourse } from "@/lib/publishing/history";
 import { readJson } from "@/lib/http";
 import { CourseExportService, ExportError } from "@/lib/publishing/service";
 export const runtime = "nodejs";
@@ -25,12 +26,13 @@ export async function POST(
         ...result.validation,
       });
     }
-    const result = await service.export(admin.id, id, body as never);
+    const result = await publishCourse(admin.id, id, body as never);
     return new Response(new Uint8Array(result.zip), {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename="course-r${result.metadata.revision}-${result.metadata.scope}-scorm${result.metadata.format.includes("1.2") ? "12" : "2004"}.zip"`,
         "Cache-Control": "no-store",
+        "X-Export-Id": result.record.id,
         "X-Course-Revision": String(result.metadata.revision),
         "X-Export-Fingerprint": result.metadata.fingerprint,
       },
@@ -39,8 +41,7 @@ export async function POST(
     if (e instanceof ExportError)
       return NextResponse.json({ error: e.message }, { status: e.status });
     console.error(
-      "Course export failed:",
-      e instanceof Error ? e.message : "unknown error",
+      "Course export failed; no private diagnostic data was returned",
     );
     return NextResponse.json(
       { error: "Package generation failed. Check server logs and retry." },

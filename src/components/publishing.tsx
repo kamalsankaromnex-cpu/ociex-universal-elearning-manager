@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Download,
   ShieldCheck,
@@ -7,6 +7,7 @@ import {
   FileArchive,
   RefreshCw,
 } from "lucide-react";
+import { PublishingHistory } from "./publishing-history";
 import { Button, SecondaryButton, SelectField, ErrorState } from "./ui";
 import type { CourseData } from "@/lib/course";
 import type { ScormVersion } from "@/lib/scorm/types";
@@ -31,7 +32,19 @@ export function PublishingManager({
     } | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
-    [logs, setLogs] = useState<string[]>([]);
+    [logs, setLogs] = useState<string[]>([]),
+    [refresh, setRefresh] = useState(0);
+  const failedDownload = useRef(false);
+  const selectionKey = JSON.stringify({
+    courseId,
+    revision,
+    scope,
+    levelId,
+    version,
+    dirty,
+  });
+  const latestSelection = useRef(selectionKey);
+  latestSelection.current = selectionKey;
   useEffect(() => {
     setValidation(null);
     setError("");
@@ -45,6 +58,8 @@ export function PublishingManager({
   async function run(download: boolean) {
     setBusy(true);
     setError("");
+    failedDownload.current = download;
+    const startedSelection = selectionKey;
     try {
       const r = await fetch(`/api/courses/${courseId}/export`, {
         method: "POST",
@@ -68,7 +83,7 @@ export function PublishingManager({
         );
       } else {
         const result = await r.json();
-        setValidation(result);
+        if (latestSelection.current === startedSelection) setValidation(result);
         setLogs((l) =>
           [`Validated saved revision ${result.revision}`, ...l].slice(0, 10),
         );
@@ -79,110 +94,119 @@ export function PublishingManager({
       setLogs((l) => [`Failed: ${message}`, ...l].slice(0, 10));
     } finally {
       setBusy(false);
+      if (download) setRefresh((n) => n + 1);
     }
   }
   return (
-    <section className="property-panel">
-      <h3>
-        <FileArchive /> Publishing manager
-      </h3>
-      <p>
-        Export a standalone, single-SCO HTML5 package using the learner player
-        and saved content.
-      </p>
-      <div className="notice">
-        Committed revision: <strong>{revision}</strong>.{" "}
-        {dirty
-          ? "Save your changes before validation or export."
-          : "Export reads the validated database revision, never the editor draft."}
-      </div>
-      <div className="form-grid">
-        <SelectField
-          label="Export scope"
-          value={scope}
-          onChange={(e) => setScope(e.target.value as "level" | "course")}
-        >
-          <option value="level">Individual level</option>
-          <option value="course">Full course</option>
-        </SelectField>
-        {scope === "level" && (
-          <SelectField
-            label="Level to export"
-            value={levelId}
-            onChange={(e) => setLevelId(e.target.value)}
-          >
-            {course.levels.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.title}
-              </option>
-            ))}
-          </SelectField>
-        )}
-        <SelectField
-          label="SCORM version"
-          value={version}
-          onChange={(e) => setVersion(e.target.value as ScormVersion)}
-        >
-          <option value="1.2">SCORM 1.2</option>
-          <option value="2004">SCORM 2004 4th Edition</option>
-        </SelectField>
-      </div>
-      <div className="actions">
-        <SecondaryButton disabled={busy || dirty} onClick={() => run(false)}>
-          <ShieldCheck />
-          Validate saved revision
-        </SecondaryButton>
-        <Button
-          disabled={
-            busy || dirty || !validation || validation.errors.length > 0
-          }
-          onClick={() => run(true)}
-        >
-          <Download />
-          {busy ? "Preparing…" : "Export ZIP"}
-        </Button>
-      </div>
-      {error && <ErrorState message={error} retry={() => run(false)} />}{" "}
-      {validation && (
-        <div className="export-results" role="status">
-          <h4>
-            {validation.errors.length
-              ? "Validation failed"
-              : "Validation passed"}
-          </h4>
-          {validation.errors.map((e, i) => (
-            <p key={`e${i}`} className="danger-text">
-              <AlertTriangle />
-              {e}
-            </p>
-          ))}
-          {validation.warnings.map((w, i) => (
-            <p key={`w${i}`}>
-              <AlertTriangle />
-              {w}
-            </p>
-          ))}
-          <p>
-            XML schemas and runtime tests are documented in the publishing
-            report. An export is not an LMS compatibility certification.
-          </p>
+    <div className="publishing-manager">
+      <section className="property-panel">
+        <h3>
+          <FileArchive /> Publishing manager
+        </h3>
+        <p>
+          Export a standalone, single-SCO HTML5 package using the learner player
+          and saved content.
+        </p>
+        <div className="notice">
+          Committed revision: <strong>{revision}</strong>.{" "}
+          {dirty
+            ? "Save your changes before validation or export."
+            : "Export reads the validated database revision, never the editor draft."}
         </div>
-      )}
-      <details className="export-logs">
-        <summary>
-          <RefreshCw />
-          Export log
-        </summary>
-        {logs.length ? (
-          <ol>
-            {logs.map((l, i) => (
-              <li key={i}>{l}</li>
+        <div className="form-grid">
+          <SelectField
+            label="Export scope"
+            value={scope}
+            onChange={(e) => setScope(e.target.value as "level" | "course")}
+          >
+            <option value="level">Individual level</option>
+            <option value="course">Full course</option>
+          </SelectField>
+          {scope === "level" && (
+            <SelectField
+              label="Level to export"
+              value={levelId}
+              onChange={(e) => setLevelId(e.target.value)}
+            >
+              {course.levels.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.title}
+                </option>
+              ))}
+            </SelectField>
+          )}
+          <SelectField
+            label="SCORM version"
+            value={version}
+            onChange={(e) => setVersion(e.target.value as ScormVersion)}
+          >
+            <option value="1.2">SCORM 1.2</option>
+            <option value="2004">SCORM 2004 4th Edition</option>
+          </SelectField>
+        </div>
+        <div className="actions">
+          <SecondaryButton disabled={busy || dirty} onClick={() => run(false)}>
+            <ShieldCheck />
+            Validate saved revision
+          </SecondaryButton>
+          <Button
+            disabled={
+              busy || dirty || !validation || validation.errors.length > 0
+            }
+            onClick={() => run(true)}
+          >
+            <Download />
+            {busy ? "Preparing…" : "Export ZIP"}
+          </Button>
+        </div>
+        {error && (
+          <ErrorState
+            message={error}
+            retry={() => run(failedDownload.current)}
+          />
+        )}{" "}
+        {validation && (
+          <div className="export-results" role="status">
+            <h4>
+              {validation.errors.length
+                ? "Validation failed"
+                : "Validation passed"}
+            </h4>
+            {validation.errors.map((e, i) => (
+              <p key={`e${i}`} className="danger-text">
+                <AlertTriangle />
+                {e}
+              </p>
             ))}
-          </ol>
-        ) : (
-          <p>No exports in this editor session.</p>
+            {validation.warnings.map((w, i) => (
+              <p key={`w${i}`}>
+                <AlertTriangle />
+                {w}
+              </p>
+            ))}
+            <p>
+              XML schemas and runtime tests are documented in the publishing
+              report. An export is not an LMS compatibility certification.
+            </p>
+          </div>
         )}
-      </details>
-    </section>
+        <details className="export-logs">
+          <summary>
+            <RefreshCw />
+            Export log
+          </summary>
+          {logs.length ? (
+            <ol>
+              {logs.map((l, i) => (
+                <li key={i}>{l}</li>
+              ))}
+            </ol>
+          ) : (
+            <p>No exports in this editor session.</p>
+          )}
+        </details>
+      </section>
+      <PublishingHistory courseId={courseId} refresh={refresh} />
+    </div>
   );
 }

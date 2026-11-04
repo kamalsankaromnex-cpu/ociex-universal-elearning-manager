@@ -36,7 +36,15 @@ export const flatten = (course: CourseData) =>
 export function assessment(course: CourseData, state: LearnerGameState) {
   const slides = flatten(course),
     questions = slides.flatMap((s, i) =>
-      s.kind === "single-choice" ? [i] : [],
+      s.kind === "single-choice" &&
+      s.scored !== false &&
+      (s.mandatory !== false || course.rules?.optionalScoring !== "exclude") &&
+      (s.mandatory !== false ||
+        course.rules?.unansweredScoring !== "exclude-optional" ||
+        state.passed.includes(i) ||
+        state.penalized.includes(i))
+        ? [i]
+        : [],
     );
   const mandatory = slides.every(
     (s, i) =>

@@ -1,3 +1,4 @@
+import { validateManifest } from "./schema-validation";
 import { build } from "esbuild";
 import { zipSync, strToU8 } from "fflate";
 import { readFile, readdir } from "node:fs/promises";
@@ -58,6 +59,15 @@ export class PackageBuilder {
       fingerprint,
       exportedAt: new Date().toISOString(),
       singleSco: true,
+      publisherVersion: "phase2.1",
+      scoringPolicy: {
+        passingScore: copy.rules?.passScore ?? 80,
+        optional: copy.rules?.optionalScoring ?? "include",
+        unanswered: copy.rules?.unansweredScoring ?? "zero",
+        unscored: "excluded",
+        answerCredit: "best-correct-in-attempt",
+        completion: "all-visited-mandatory-correct-life-positive",
+      },
     };
     files["assets/player.js"] = strToU8(await playerBundle());
     files["assets/course.js"] = strToU8(
@@ -111,6 +121,12 @@ export class PackageBuilder {
         Object.keys(files).sort(),
       ),
     );
+    const validation = validateManifest(
+      new TextDecoder().decode(files["imsmanifest.xml"]),
+      request.version,
+    );
+    if (!validation.valid)
+      throw new Error("Generated manifest failed schema validation");
     const zip = zipSync(
       Object.fromEntries(
         Object.entries(files).map(([path, bytes]) => [

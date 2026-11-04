@@ -28,7 +28,16 @@ const engine = await runtime.SchemaEngine.new(
 );
 const filters = { externalTables: [], externalEnums: [] };
 try {
-  if (process.argv.includes("--generate-initial")) {
+  const rollback = process.argv.find((arg) =>
+    arg.startsWith("--resolve-rolled-back="),
+  );
+  if (rollback) {
+    console.log(
+      await engine.markMigrationRolledBack({
+        migrationName: rollback.slice("--resolve-rolled-back=".length),
+      }),
+    );
+  } else if (process.argv.includes("--generate-initial")) {
     const diff = await engine.diff({
       from: { tag: "empty" },
       to: {

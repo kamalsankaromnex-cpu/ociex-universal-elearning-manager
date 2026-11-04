@@ -57,3 +57,19 @@ export async function DELETE(
     { status: result.count ? 200 : 404 },
   );
 }
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const admin = await currentAdmin();
+  if (!admin)
+    return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  const { id } = await params;
+  const record = await db.course.findFirst({
+    where: { id, adminId: admin.id },
+  });
+  return record
+    ? NextResponse.json(record, { headers: { "Cache-Control": "no-store" } })
+    : NextResponse.json({ error: "Course unavailable" }, { status: 404 });
+}

@@ -49,6 +49,7 @@ export class CourseExportService {
     const fingerprint = createHash("sha256")
       .update(
         JSON.stringify({
+          publisherVersion: "phase2.1",
           revision: snapshot.request.revision,
           scope: snapshot.request.scope,
           version: snapshot.request.version,

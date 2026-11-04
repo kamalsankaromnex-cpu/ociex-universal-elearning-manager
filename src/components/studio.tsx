@@ -43,6 +43,14 @@ type RecordCourse = {
   revision: number;
   updatedAt: string;
 };
+class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
 async function api(path: string, method = "GET", body?: unknown) {
   const r = await fetch(path, {
     method,
@@ -51,7 +59,10 @@ async function api(path: string, method = "GET", body?: unknown) {
   });
   const data = await r.json();
   if (!r.ok)
-    throw new Error(data.error || "Something went wrong. Please try again.");
+    throw new ApiError(
+      data.error || "Something went wrong. Please try again.",
+      r.status,
+    );
   return data;
 }
 export function CourseCard({
@@ -186,7 +197,8 @@ export function Studio() {
     [sort, setSort] = useState("recent"),
     [deleting, setDeleting] = useState<RecordCourse | null>(null),
     [busy, setBusy] = useState(false),
-    [editorDirty, setEditorDirty] = useState(false);
+    [editorDirty, setEditorDirty] = useState(false),
+    [editorEpoch, setEditorEpoch] = useState(0);
   const notify = (m: string) => {
     setToast(m);
     window.setTimeout(() => setToast(""), 4500);
@@ -224,7 +236,7 @@ export function Studio() {
     setError("");
   }
   async function save(data: CourseData) {
-    if (!selected) return false;
+    if (!selected) return { ok: false, error: "Course unavailable" };
     try {
       const updated = await api(`/api/courses/${selected.id}`, "PUT", {
         data,
@@ -233,10 +245,13 @@ export function Studio() {
       setSelected(updated);
       setCourses((c) => c.map((x) => (x.id === updated.id ? updated : x)));
       notify("Course saved successfully");
-      return true;
+      return { ok: true, data: updated.data as CourseData };
     } catch (e) {
-      setError((e as Error).message);
-      return false;
+      return {
+        ok: false,
+        error: (e as Error).message,
+        conflict: e instanceof ApiError && e.status === 409,
+      };
     }
   }
   if (authLoading) return <LoadingState />;
@@ -304,7 +319,7 @@ export function Studio() {
           {error && <ErrorState message={error} retry={() => load()} />}{" "}
           {selected ? (
             <CourseEditor
-              key={selected.id}
+              key={`${selected.id}-${editorEpoch}`}
               initial={selected.data}
               courseId={selected.id}
               revision={selected.revision}
@@ -313,6 +328,14 @@ export function Studio() {
                 load();
               }}
               onSave={save}
+              onReload={async () => {
+                const updated = await api(`/api/courses/${selected.id}`);
+                setSelected(updated);
+                setCourses((c) =>
+                  c.map((x) => (x.id === updated.id ? updated : x)),
+                );
+                setEditorEpoch((x) => x + 1);
+              }}
               onPreview={setPreview}
               onError={setError}
               onDirtyChange={setEditorDirty}

@@ -19,7 +19,13 @@ import {
   FileArchive,
 } from "lucide-react";
 import { PublishingManager } from "./publishing";
-import { type CourseData, type Slide, newSlide, presets } from "@/lib/course";
+import {
+  courseSchema,
+  type CourseData,
+  type Slide,
+  newSlide,
+  presets,
+} from "@/lib/course";
 import {
   Button,
   SecondaryButton,
@@ -33,6 +39,7 @@ import {
   MediaPicker,
   EmptyState,
   StatusBadge,
+  ErrorState,
 } from "./ui";
 export function EditorToolbar({ children }: { children: ReactNode }) {
   return <div className="editor-toolbar">{children}</div>;
@@ -143,6 +150,7 @@ export function CourseEditor({
   initial,
   onBack,
   onSave,
+  onReload,
   onPreview,
   onError,
   onDirtyChange,
@@ -153,7 +161,15 @@ export function CourseEditor({
   courseId: string;
   revision: number;
   onBack: () => void;
-  onSave: (c: CourseData) => Promise<boolean>;
+  onSave: (
+    c: CourseData,
+  ) => Promise<{
+    ok: boolean;
+    data?: CourseData;
+    error?: string;
+    conflict?: boolean;
+  }>;
+  onReload: () => Promise<void>;
   onPreview: (c: CourseData) => void;
   onError: (m: string) => void;
   onDirtyChange: (dirty: boolean) => void;
@@ -164,11 +180,78 @@ export function CourseEditor({
     [slideId, setSlideId] = useState(initial.levels[0]?.slides[0]?.id || ""),
     [savedSnapshot, setSavedSnapshot] = useState(JSON.stringify(initial)),
     [saving, setSaving] = useState(false),
+    [saveError, setSaveError] = useState<{
+      message: string;
+      conflict?: boolean;
+    } | null>(null),
+    [recovery, setRecovery] = useState<{
+      data: CourseData;
+      revision: number;
+      valid?: boolean;
+    } | null>(null),
+    [draftLoaded, setDraftLoaded] = useState(false),
+    [storageError, setStorageError] = useState(""),
     [confirm, setConfirm] = useState<{
       title: string;
       action: () => void;
     } | null>(null);
   const dirty = JSON.stringify(course) !== savedSnapshot;
+  const draftKey = `course-draft:${courseId}`;
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(draftKey);
+      if (raw) {
+        const stored = JSON.parse(raw);
+        const parsed = courseSchema.safeParse(stored.data);
+        if (
+          stored.data &&
+          Number.isInteger(stored.revision) &&
+          JSON.stringify(stored.data) !== JSON.stringify(initial)
+        )
+          setRecovery({
+            data: parsed.success ? parsed.data : stored.data,
+            revision: stored.revision,
+            valid: parsed.success,
+          });
+      }
+    } catch {
+      setStorageError(
+        "Draft recovery is unavailable in this browser. Save before closing this tab.",
+      );
+    }
+    setDraftLoaded(true);
+    // Only inspect recovery when this course editor opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+  useEffect(() => {
+    if (!draftLoaded || recovery) return;
+    try {
+      if (dirty)
+        sessionStorage.setItem(
+          draftKey,
+          JSON.stringify({ data: course, revision }),
+        );
+      else sessionStorage.removeItem(draftKey);
+    } catch {
+      setStorageError(
+        "Browser draft storage is full or unavailable. Save before closing this tab.",
+      );
+    }
+  }, [course, dirty, revision, draftKey, draftLoaded, recovery]);
+  function downloadDraft() {
+    const url = URL.createObjectURL(
+      new Blob(
+        [JSON.stringify(recovery ?? { data: course, revision }, null, 2)],
+        { type: "application/json" },
+      ),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "course-draft.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   useEffect(() => {
     onDirtyChange(dirty);
     return () => onDirtyChange(false);
@@ -233,10 +316,27 @@ export function CourseEditor({
     setSlideId(level?.slides.find((s) => s.id !== slideId)?.id || "");
   }
   async function save() {
+    if (saving || recovery) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const submitted = course;
-      if (await onSave(submitted)) setSavedSnapshot(JSON.stringify(submitted));
+      const result = await onSave(submitted);
+      if (result.ok) {
+        const normalized = result.data ?? submitted;
+        setSavedSnapshot(JSON.stringify(normalized));
+        setCourse((current) =>
+          JSON.stringify(current) === JSON.stringify(submitted)
+            ? normalized
+            : current,
+        );
+      } else
+        setSaveError({
+          message: result.error ?? "Save failed",
+          conflict: result.conflict,
+        });
+    } catch (e) {
+      setSaveError({ message: (e as Error).message });
     } finally {
       setSaving(false);
     }
@@ -266,13 +366,89 @@ export function CourseEditor({
               <Play />
               Preview
             </SecondaryButton>
-            <Button disabled={saving} onClick={save}>
+            <Button disabled={saving || !!recovery} onClick={save}>
               <Save />
               {saving ? "Saving…" : "Save changes"}
             </Button>
           </>
         }
       />
+      {storageError && <ErrorState message={storageError} />}
+      {recovery && (
+        <section className="notice" aria-label="Recover unsaved draft">
+          <h3>Unsaved draft found</h3>
+          <p>
+            {recovery.revision === revision
+              ? "Restore the unsaved work from this browser tab, or discard it."
+              : "The saved revision changed. Download your older draft before discarding it; it cannot overwrite the latest course."}
+          </p>
+          <p>
+            {recovery.valid === false
+              ? "This draft contains invalid or incomplete fields. Download the JSON to recover the text before discarding it."
+              : ""}
+          </p>
+          <div className="actions">
+            <SecondaryButton
+              disabled={
+                recovery.revision !== revision || recovery.valid === false
+              }
+              onClick={() => {
+                setCourse(recovery.data);
+                setRecovery(null);
+              }}
+            >
+              Restore draft
+            </SecondaryButton>
+            <SecondaryButton onClick={downloadDraft}>
+              Download draft JSON
+            </SecondaryButton>
+            <SecondaryButton
+              onClick={() => {
+                sessionStorage.removeItem(draftKey);
+                setRecovery(null);
+              }}
+            >
+              Discard recovered draft
+            </SecondaryButton>
+          </div>
+        </section>
+      )}
+      {saveError && (
+        <section aria-label="Save error">
+          <ErrorState
+            message={saveError.message}
+            retry={saveError.conflict ? undefined : save}
+          />
+          {saveError.conflict && (
+            <div className="actions">
+              <SecondaryButton onClick={downloadDraft}>
+                Download draft JSON
+              </SecondaryButton>
+              <SecondaryButton
+                onClick={async () => {
+                  if (
+                    !window.confirm(
+                      "Reopen the latest saved revision? Download your draft first to keep local changes.",
+                    )
+                  )
+                    return;
+                  try {
+                    await onReload();
+                    sessionStorage.removeItem(draftKey);
+                  } catch (e) {
+                    setSaveError({
+                      message: (e as Error).message,
+                      conflict: true,
+                    });
+                  }
+                }}
+              >
+                Reopen latest saved revision
+              </SecondaryButton>
+            </div>
+          )}
+        </section>
+      )}
       <div className="editor-status">
         <StatusBadge>Draft</StatusBadge>
         <span>{dirty ? "Unsaved changes" : "All changes saved"}</span>
@@ -566,6 +742,21 @@ export function CourseEditor({
                               Mandatory competency: correct answer required for
                               completion
                             </label>
+                            <label className="check-field">
+                              <input
+                                type="checkbox"
+                                checked={slide.scored !== false}
+                                onChange={(e) =>
+                                  patchSlide({ scored: e.target.checked })
+                                }
+                              />
+                              Include this question in the score
+                            </label>
+                            <p className="hint">
+                              Mandatory controls completion. Scored controls the
+                              percentage. An unscored mandatory question still
+                              needs a correct answer.
+                            </p>
                             <TextField
                               label="Incorrect-answer life penalty (%)"
                               type="number"
@@ -698,11 +889,68 @@ export function CourseEditor({
             courseId={courseId}
             revision={revision}
             course={course}
-            dirty={dirty}
+            dirty={dirty || !!recovery}
           />
         )}
         {tab === "settings" && (
           <PropertyPanel title="Course details">
+            <div className="notice">
+              Completion requires visiting every slide, answering every
+              mandatory competency correctly, and life above zero. Scores use
+              the best correct answer within the attempt; correcting an answer
+              earns credit. Life and scores are independent.
+            </div>
+            <SelectField
+              label="Optional-question scoring"
+              value={course.rules?.optionalScoring ?? "include"}
+              onChange={(e) =>
+                change((c) => ({
+                  ...c,
+                  rules: {
+                    penalty: 25,
+                    recovery: 25,
+                    passScore: 80,
+                    ...c.rules,
+                    optionalScoring: e.target.value as "include" | "exclude",
+                  },
+                }))
+              }
+            >
+              <option value="include">Include optional scored questions</option>
+              <option value="exclude">
+                Exclude optional questions from score
+              </option>
+            </SelectField>
+            <SelectField
+              label="Unanswered-question scoring"
+              value={course.rules?.unansweredScoring ?? "zero"}
+              onChange={(e) =>
+                change((c) => ({
+                  ...c,
+                  rules: {
+                    penalty: 25,
+                    recovery: 25,
+                    passScore: 80,
+                    ...c.rules,
+                    unansweredScoring: e.target.value as
+                      "zero" | "exclude-optional",
+                  },
+                }))
+              }
+            >
+              <option value="zero">
+                Count unanswered scored questions as zero
+              </option>
+              <option value="exclude-optional">
+                Exclude unanswered optional questions
+              </option>
+            </SelectField>
+            <p className="hint">
+              Unscored questions never enter the score denominator. With no
+              scored questions, the score is 100%; mandatory completion checks
+              still apply.
+            </p>
+
             <TextField
               label="Course title"
               value={course.title}

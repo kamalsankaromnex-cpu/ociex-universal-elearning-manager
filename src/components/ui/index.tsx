@@ -168,7 +168,16 @@ export function Tabs({
           </RadixTabs.Trigger>
         ))}
       </RadixTabs.List>
-      <RadixTabs.Content value={value}>{children}</RadixTabs.Content>
+      {items.map((item) => (
+        <RadixTabs.Content
+          key={item.value}
+          value={item.value}
+          forceMount
+          hidden={item.value !== value}
+        >
+          {item.value === value ? children : null}
+        </RadixTabs.Content>
+      ))}
     </RadixTabs.Root>
   );
 }

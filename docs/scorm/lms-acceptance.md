@@ -1,6 +1,6 @@
-# External LMS acceptance — not yet executed
+# External LMS acceptance — evidence and staging checklist
 
-No SCORM Cloud or Cornerstone credentials/staging access were configured for this assistant. The user has supplied a real Level 01 registration screenshot showing complete/passed/100%; its exact package version is not visible. The expanded checks below still need external execution. The application does not require these credentials to export ZIPs. Do not put LMS secrets into source, ZIPs, screenshots or chat. Any future API integration must use securely supplied environment bindings and the authorized destination.
+Phase 2 exports have new metadata/runtime/scoring policy fingerprints and require a new artifact-specific test. No SCORM Cloud or Cornerstone credentials/staging access were configured for this assistant. The user has supplied a real Level 01 registration screenshot showing complete/passed/100%; its exact package version is not visible. The expanded checks below still need external execution. The application does not require these credentials to export ZIPs. Do not put LMS secrets into source, ZIPs, screenshots or chat. Any future API integration must use securely supplied environment bindings and the authorized destination.
 
 ## SCORM Cloud
 
@@ -48,3 +48,9 @@ Do not claim compatibility until a learning administrator completes this checkli
 Current Cornerstone status: **Not run; compatibility unverified**.
 
 Ready-to-import two-level QA ZIPs for both standards and precise expected life/score outcomes are in [the current QA walkthrough](remaining-checks.md). They are not approved safety training and are not inserted into the saved EHS course.
+
+## Record acceptance against Phase 2 artifacts
+
+Use Publishing → Export history → Download ZIP. Keep the immutable artifact ID and SHA-256 with the test notes, then use Record LMS test on that same row. Record the LMS platform, detected SCORM edition, LMS version/build (or hosted-service test date), tester/date, result and protected evidence reference. Check import, actual launch and debug inspection only after each was performed. A registration screenshot alone is not full debug verification. Re-exporting creates a new artifact requiring its own acceptance record, even when the saved course revision did not change.
+
+Historical user-provided reports showed the earlier SCORM 2004 Daimler EHS baseline complete/passed/100% and a resumed QA baseline complete/failed/67%, including course-level rollup. Those reports do not certify the new Phase 2 ZIPs, 1.2 packages, all game/review scenarios or Cornerstone. Current artifact-level external acceptance: **unverified**. See [the Phase 2 review](../phase2/acceptance-report.md).

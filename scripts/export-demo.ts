@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { CourseExportService } from "../src/lib/publishing/service";
+import { publishCourse } from "../src/lib/publishing/history";
+import { db as publishingDb } from "../src/lib/db";
 import { validateManifest } from "./validate-scorm";
 import { strFromU8 } from "fflate";
 import { PackageBuilder } from "../src/lib/publishing/package-builder";
@@ -24,6 +25,7 @@ async function main() {
   const report: Array<
     BuiltPackage["metadata"] & {
       file: string;
+      exportId?: string;
       schemaValidation: ReturnType<typeof validateManifest>;
       bytes: number;
       packagedFiles: number;
@@ -31,6 +33,7 @@ async function main() {
   > = [];
   const integrity: Array<{
     file: string;
+    exportId?: string;
     sha256: string;
     entries: number;
     secretValueMatches: number;
@@ -41,6 +44,7 @@ async function main() {
     filename: string,
     result: Awaited<ReturnType<PackageBuilder["build"]>>,
     version: "1.2" | "2004",
+    exportId?: string,
   ) {
     const validation = validateManifest(
       strFromU8(result.files["imsmanifest.xml"]),
@@ -61,6 +65,7 @@ async function main() {
     await writeFile(`deliverables/scorm/${filename}`, result.zip);
     integrity.push({
       file: filename,
+      exportId,
       sha256: createHash("sha256").update(result.zip).digest("hex"),
       entries: Object.keys(result.files).length,
       secretValueMatches: 0,
@@ -69,6 +74,7 @@ async function main() {
     });
     report.push({
       file: filename,
+      exportId,
       ...result.metadata,
       schemaValidation: validation,
       bytes: result.zip.length,
@@ -77,20 +83,17 @@ async function main() {
   }
   for (const scope of ["level", "course"] as const)
     for (const version of ["1.2", "2004"] as const) {
-      const result = await new CourseExportService().export(
-        admin.id,
-        record.id,
-        {
-          revision: record.revision,
-          scope,
-          version,
-          levelId: data.levels[0].id,
-        },
-      );
+      const result = await publishCourse(admin.id, record.id, {
+        revision: record.revision,
+        scope,
+        version,
+        levelId: data.levels[0].id,
+      });
       await savePackage(
         `Daimler-EHS-${scope === "level" ? "Level-01" : "Full-Course"}-SCORM-${version === "1.2" ? "1.2" : "2004-4th"}.zip`,
         result,
         version,
+        result.record.id,
       );
     }
   for (const version of ["1.2", "2004"] as const) {
@@ -99,7 +102,14 @@ async function main() {
     const validation = new ExportValidator().validate(course, request);
     if (validation.errors.length) throw new Error(validation.errors.join(" "));
     const fingerprint = createHash("sha256")
-      .update(JSON.stringify({ fixture: "tracking-qa-v1", version, course }))
+      .update(
+        JSON.stringify({
+          fixture: "tracking-qa-v2",
+          publisherVersion: "phase2.1",
+          version,
+          course,
+        }),
+      )
       .digest("hex");
     const result = await new PackageBuilder().build(
       course,
@@ -142,4 +152,4 @@ main()
     console.error(e instanceof Error ? e.message : "Export failed");
     process.exitCode = 1;
   })
-  .finally(() => db.$disconnect());
+  .finally(() => Promise.all([db.$disconnect(), publishingDb.$disconnect()]));

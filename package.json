@@ -15,7 +15,8 @@
     "db:generate": "tsx scripts/generate.ts",
     "format": "prettier --write src scripts tests e2e prisma/seed.ts *.ts *.mjs *.json *.yaml",
     "admin:password": "node --env-file=.env --import tsx scripts/set-admin-password.ts",
-    "export:demo": "node --env-file=.env --import tsx scripts/export-demo.ts"
+    "export:demo": "node --env-file=.env --import tsx scripts/export-demo.ts",
+    "test:migrations": "node --env-file=.env scripts/check-publishing-migrations.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.2.8",
@@ -35,7 +36,8 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "tailwind-merge": "3.3.1",
-    "zod": "4.6.7"
+    "zod": "4.6.7",
+    "libxmljs2": "0.37.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
@@ -50,7 +52,6 @@
     "dotenv": "17.2.3",
     "eslint": "9.39.1",
     "eslint-config-next": "15.5.29",
-    "libxmljs2": "0.37.0",
     "postcss": "8.5.32",
     "prettier": "3.9.10",
     "prisma": "7.10.1",

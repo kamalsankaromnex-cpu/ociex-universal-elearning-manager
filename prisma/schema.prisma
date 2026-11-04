@@ -26,10 +26,52 @@ model Course {
  data Json
  revision Int @default(1)
  createdAt DateTime @default(now())
+ exports PublishedExport[]
  updatedAt DateTime @updatedAt
 }
 model LoginAttempt {
  key String @id
  count Int @default(0)
  resetAt DateTime
+}
+
+model PublishedExport {
+ id String @id @default(cuid())
+ courseId String
+ course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+ revision Int
+ revisionIdentifier String
+ version String
+ scope String
+ levelId String?
+ levelTitle String?
+ fingerprint String
+ status String
+ error String?
+ snapshot Json
+ metadata Json
+ validation Json
+ zip Bytes?
+ sha256 String?
+ bytes Int @default(0)
+ createdAt DateTime @default(now())
+ acceptances LmsAcceptance[]
+ @@index([courseId, createdAt])
+}
+model LmsAcceptance {
+ id String @id @default(cuid())
+ exportId String
+ export PublishedExport @relation(fields: [exportId], references: [id], onDelete: Cascade)
+ platform String
+ edition String
+ testedVersion String
+ tester String
+ testedAt DateTime
+ result String
+ evidence String
+ importVerified Boolean
+ launchVerified Boolean
+ debugVerified Boolean
+ createdAt DateTime @default(now())
+ @@index([exportId, createdAt])
 }
