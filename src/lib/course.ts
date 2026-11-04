@@ -23,6 +23,8 @@ export const themeSchema = z.object({
   radius: z.number().min(0).max(32),
   logo: media,
   backgroundImage: media,
+  style: z.enum(["standard", "game"]).optional().default("standard"),
+  gameAccent: z.string().optional(),
 });
 export const slideSchema = z
   .object({
@@ -32,6 +34,7 @@ export const slideSchema = z
       "content",
       "single-choice",
       "multi-select",
+      "sequencing",
       "recovery",
       "composed",
     ]),
@@ -72,6 +75,7 @@ export const slideSchema = z
   .refine(
     (s) =>
       s.kind === "multi-select" ||
+      s.kind === "sequencing" ||
       s.kind === "composed" ||
       s.options.some((o) => o.id === s.correctId),
     {
@@ -91,6 +95,18 @@ export const slideSchema = z
     {
       message:
         "Select at least one existing correct answer; correct answers must be unique",
+    },
+  )
+  .refine(
+    (s) =>
+      s.kind !== "sequencing" ||
+      (!!s.correctIds?.length &&
+        s.correctIds.length === s.options.length &&
+        new Set(s.correctIds).size === s.options.length &&
+        s.correctIds.every((id) => s.options.some((o) => o.id === id))),
+    {
+      message:
+        "Sequencing activities require all options defined in the correct sequence order",
     },
   )
   .refine((s) => s.kind !== "composed" || !!s.composition, {
@@ -157,6 +173,8 @@ export const defaultTheme: CourseData["theme"] = {
   radius: 16,
   logo: "",
   backgroundImage: "",
+  style: "standard",
+  gameAccent: "#F59E0B",
 };
 export const presets = {
   "Daimler Truck (provisional)": {
@@ -165,6 +183,7 @@ export const presets = {
     primary: "#087E8B",
     navigation: "#087E8B",
     icon: "#087E8B",
+    style: "standard" as const,
   },
   "BharatBenz (provisional)": {
     ...defaultTheme,
@@ -172,6 +191,24 @@ export const presets = {
     primary: "#DC2626",
     navigation: "#DC2626",
     icon: "#DC2626",
+    style: "standard" as const,
+  },
+  "Daimler EHS Game Experience (Illustrated)": {
+    ...defaultTheme,
+    header: "#0B1F3A",
+    primary: "#087E8B",
+    navigation: "#087E8B",
+    icon: "#087E8B",
+    background: "#081325",
+    section: "#0E2445",
+    card: "#122B52",
+    text: "#F8FAFC",
+    border: "#1E3A8A",
+    buttonText: "#FFFFFF",
+    life: "#22C55E",
+    star: "#F59E0B",
+    style: "game" as const,
+    gameAccent: "#F59E0B",
   },
 };
 export function newSlide(title = "Untitled slide"): Slide {

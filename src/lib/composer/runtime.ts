@@ -327,11 +327,12 @@ export function validateComposerResume(
         question,
         selectionIds(question, answer.selection),
       );
+    const count = (question.correctIds ?? question.options).length;
     const allowed =
-      question.kind === "multi-select" &&
+      (question.kind === "multi-select" || question.kind === "sequencing") &&
       question.scoringMode === "partial-credit"
-        ? Array.from({ length: question.correctIds!.length + 1 }, (_, i) =>
-            Math.round((i / question.correctIds!.length) * 10000),
+        ? Array.from({ length: count + 1 }, (_, i) =>
+            Math.round((i / count) * 10000),
           )
         : [0, 10000];
     if (
@@ -396,4 +397,22 @@ export function validateComposerResume(
     )
       throw Error("Invalid feedback owner or condition");
   }
+}
+
+export function completeVideo(
+  slide: Slide,
+  state: LearnerGameState,
+  blockId: string,
+): { state: LearnerGameState; target?: string } {
+  const b = slide.composition?.blocks.find((b) => b.id === blockId);
+  if (!b || b.kind !== "video") return { state };
+  const runtime = state.composer ?? emptyComposer();
+  const next = {
+    ...state,
+    composer: {
+      ...runtime,
+      seen: add(runtime.seen, blockId),
+    },
+  };
+  return composerEvent(slide, next, { event: "video-complete", sourceId: blockId });
 }

@@ -9,7 +9,7 @@ export const composerStateSchema = z.object({
   answers: z.record(
     z.string(),
     z.object({
-      selection: z.number().int().min(0).max(63),
+      selection: z.number().int().min(0).max(1000000),
       credit: z.number().int().min(0).max(10000),
       passed: z.boolean(),
       penalized: z.boolean(),

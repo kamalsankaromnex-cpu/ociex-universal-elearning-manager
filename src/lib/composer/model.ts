@@ -11,6 +11,11 @@ export function questionSlide(parent: Slide, block: InteractionBlock): Slide {
     image: "",
     correctId:
       block.question.correctId ?? block.question.correctIds?.[0] ?? "a",
+    correctIds:
+      block.question.correctIds ??
+      (block.question.kind === "sequencing"
+        ? block.question.options.map((o) => o.id)
+        : undefined),
     correctFeedback: "Correct",
     incorrectFeedback: "Try again",
   };
@@ -29,6 +34,26 @@ export function newBlock(kind: Block["kind"], region = "main"): Block {
       return { ...base, kind, text: "Add a content section." };
     case "media":
       return { ...base, kind, src: "", alt: "" };
+    case "video":
+      return {
+        ...base,
+        kind,
+        src: "",
+        poster: "",
+        title: "Safety briefing video",
+        startOverlay: true,
+        startButtonLabel: "Start Video",
+        allowSkip: true,
+      };
+    case "character":
+      return {
+        ...base,
+        kind,
+        character: "safety-officer",
+        pose: "standing",
+        name: "Safety Officer",
+        alt: "Illustrated Safety Officer in yellow hard hat",
+      };
     case "interaction":
       return {
         ...base,
@@ -57,7 +82,12 @@ export function newBlock(kind: Block["kind"], region = "main"): Block {
         presentation: "inline",
       };
     case "button":
-      return { ...base, kind, label: "Continue activity" };
+      return {
+        ...base,
+        kind,
+        label: "Continue activity",
+        buttonVariant: "game",
+      };
     case "recovery":
       return { ...base, kind, amount: 25 };
   }
@@ -83,7 +113,11 @@ export function convertSlide(
       src: slide.image,
       alt: slide.title,
     });
-  if (slide.kind === "single-choice" || slide.kind === "multi-select") {
+  if (
+    slide.kind === "single-choice" ||
+    slide.kind === "multi-select" ||
+    slide.kind === "sequencing"
+  ) {
     const id = `${slide.id}:question`;
     blocks.push({
       ...newBlock("interaction"),
@@ -180,8 +214,12 @@ export function compositionMedia(c: Composition) {
   return c.blocks.flatMap((b) =>
     b.kind === "media"
       ? [b.src]
-      : b.kind === "interaction"
-        ? b.question.options.map((o) => o.image ?? "")
-        : [],
+      : b.kind === "video"
+        ? [b.poster ?? ""]
+        : b.kind === "character"
+          ? [b.customSrc ?? ""]
+          : b.kind === "interaction"
+            ? b.question.options.map((o) => o.image ?? "")
+            : [],
   );
 }

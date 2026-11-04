@@ -10,7 +10,7 @@ const id = z
   );
 export const questionSchema = z
   .object({
-    kind: z.enum(["single-choice", "multi-select"]),
+    kind: z.enum(["single-choice", "multi-select", "sequencing"]),
     prompt: z.string().trim().min(1).max(10000),
     options: z
       .array(
@@ -38,6 +38,20 @@ export const questionSchema = z
   .superRefine((q, ctx) => {
     if (new Set(q.options.map((o) => o.id)).size !== q.options.length)
       ctx.addIssue({ code: "custom", message: "Option IDs must be unique" });
+    if (q.kind === "sequencing") {
+      if (
+        !q.correctIds?.length ||
+        q.correctIds.length !== q.options.length ||
+        new Set(q.correctIds).size !== q.options.length ||
+        q.correctIds.some((x) => !q.options.some((o) => o.id === x))
+      )
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "Sequencing activities require all options defined in the correct sequence order",
+        });
+      return;
+    }
     const correct = q.kind === "single-choice" ? [q.correctId] : q.correctIds;
     if (
       !correct?.length ||
@@ -56,18 +70,69 @@ const base = {
   layer: z.enum(["base", "overlay"]),
   visible: z.boolean(),
   required: z.boolean(),
+  locked: z.boolean().optional(),
+  customStyle: z
+    .object({
+      align: z.enum(["left", "center", "right"]).optional(),
+      opacity: z.number().min(0).max(100).optional(),
+      borderStyle: z.enum(["none", "solid", "dashed", "game-card"]).optional(),
+      accentColor: z.string().optional(),
+    })
+    .optional(),
 };
 export const blockSchema = z.discriminatedUnion("kind", [
   z.object({
     ...base,
     kind: z.literal("content"),
     text: z.string().trim().min(1).max(10000),
+    contentVariant: z
+      .enum([
+        "standard",
+        "speech-bubble",
+        "scenario-panel",
+        "heading-banner",
+        "notice",
+      ])
+      .optional(),
+    speaker: z.string().max(80).optional(),
+    bubbleTail: z.enum(["left", "right", "top", "bottom"]).optional(),
+    title: z.string().max(160).optional(),
   }),
   z.object({
     ...base,
     kind: z.literal("media"),
     src: media.refine(Boolean, "Choose an image"),
     alt: z.string().trim().min(1).max(200),
+    caption: z.string().max(200).optional(),
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("video"),
+    src: z.string().max(2000000).default(""),
+    poster: media.optional(),
+    title: z.string().trim().max(200).optional(),
+    autoplay: z.boolean().optional(),
+    startOverlay: z.boolean().default(true),
+    startButtonLabel: z.string().trim().max(80).default("Start Video"),
+    allowSkip: z.boolean().default(true),
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("character"),
+    character: z.enum([
+      "safety-officer",
+      "fox-mascot",
+      "robot-drone",
+      "character-group",
+      "custom",
+    ]),
+    pose: z
+      .enum(["standing", "thinking", "pointing", "celebrating"])
+      .optional(),
+    name: z.string().max(80).optional(),
+    customSrc: media.optional(),
+    alt: z.string().trim().min(1).max(200),
+    flip: z.boolean().optional(),
   }),
   z.object({
     ...base,
@@ -86,6 +151,7 @@ export const blockSchema = z.discriminatedUnion("kind", [
     ...base,
     kind: z.literal("button"),
     label: z.string().trim().min(1).max(160),
+    buttonVariant: z.enum(["primary", "secondary", "pill", "game"]).optional(),
   }),
   z.object({
     ...base,
@@ -101,6 +167,7 @@ export const triggerSchema = z.object({
     "incorrect",
     "partial",
     "retry",
+    "video-complete",
   ]),
   sourceId: id.optional(),
 });
@@ -130,6 +197,15 @@ export const compositionSchema = z
       interactionIds: z.array(id).max(64),
     }),
     navigation: z.enum(["free", "after-completion"]),
+    scene: z
+      .object({
+        background: z.string().optional(),
+        titleBanner: z.string().optional(),
+        preset: z
+          .enum(["industrial-plant", "workshop", "clean-room", "custom"])
+          .optional(),
+      })
+      .optional(),
   })
   .superRefine((c, ctx) => {
     for (const message of validateComposition(c))
@@ -189,16 +265,23 @@ export function validateComposition(c: Composition): string[] {
     } else if (r.trigger.event === "activate") {
       if (source?.kind !== "button")
         errors.push("Activate rules require a button source");
+    } else if (r.trigger.event === "video-complete") {
+      if (source?.kind !== "video")
+        errors.push("Video complete rules require a video source");
     } else if (source?.kind !== "interaction")
       errors.push("Question events require an interaction source");
     if (source?.kind === "interaction") {
       const q = source.question;
       const count =
-        q.kind === "single-choice" ? 1 : (q.correctIds?.length ?? 0);
+        q.kind === "single-choice"
+          ? 1
+          : q.kind === "sequencing"
+            ? q.options.length
+            : (q.correctIds?.length ?? 0);
       if (
         r.trigger.event === "partial" &&
         !(
-          q.kind === "multi-select" &&
+          (q.kind === "multi-select" || q.kind === "sequencing") &&
           q.scoringMode === "partial-credit" &&
           count > 1
         )
@@ -240,10 +323,10 @@ export function validateComposition(c: Composition): string[] {
         );
       if (
         a.type === "navigate" &&
-        !["activate", "correct"].includes(r.trigger.event)
+        !["activate", "correct", "video-complete"].includes(r.trigger.event)
       )
         errors.push(
-          "Navigation rules need an explicit button or correct-answer event",
+          "Navigation rules need an explicit button, video or correct-answer event",
         );
       if (a.type === "complete" && r.trigger.event === "enter")
         errors.push("Completion actions require an explicit learner event");
@@ -284,7 +367,13 @@ export function validateComposition(c: Composition): string[] {
     const size = reachable.size;
     for (const r of c.rules)
       if (
-        ["enter", "activate", "correct", "retry"].includes(r.trigger.event) &&
+        [
+          "enter",
+          "activate",
+          "correct",
+          "retry",
+          "video-complete",
+        ].includes(r.trigger.event) &&
         (r.trigger.event === "enter" ||
           (!!r.trigger.sourceId && reachable.has(r.trigger.sourceId)))
       )
@@ -313,7 +402,9 @@ export function validateComposition(c: Composition): string[] {
     c.completion.mode === "manual" &&
     !c.rules.some(
       (r) =>
-        ["activate", "correct", "retry"].includes(r.trigger.event) &&
+        ["activate", "correct", "retry", "video-complete"].includes(
+          r.trigger.event,
+        ) &&
         !!r.trigger.sourceId &&
         reachable.has(r.trigger.sourceId) &&
         r.actions.some((a) => a.type === "complete"),

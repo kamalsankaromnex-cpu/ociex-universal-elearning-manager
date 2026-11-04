@@ -10,6 +10,7 @@ import {
   retryComposer,
   recoverComposer,
   resetComposerLevel,
+  completeVideo,
 } from "./composer/runtime";
 import {
   isQuestion,
@@ -390,4 +391,15 @@ export function dismissFeedback(state: LearnerGameState, id: string) {
       feedback: state.composer.feedback.filter((key) => key !== id),
     },
   };
+}
+
+export function completeVideoBlock(
+  course: CourseData,
+  state: LearnerGameState,
+  id: string,
+) {
+  return finishComposerEvent(
+    course,
+    completeVideo(flatten(course)[state.index], state, id),
+  );
 }
