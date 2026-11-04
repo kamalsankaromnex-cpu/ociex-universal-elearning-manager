@@ -8,6 +8,7 @@ import {
   SelectField,
   TextField,
 } from "./ui";
+
 /** Stable option IDs keep answer keys intact when labels or order change. */
 export function QuestionOptionsEditor({
   slide,
@@ -19,14 +20,20 @@ export function QuestionOptionsEditor({
   onError: (message: string) => void;
 }) {
   const multi = slide.kind === "multi-select";
+  const isSeq = slide.kind === "sequencing";
+
   function move(index: number, delta: number) {
     const options = [...slide.options];
     [options[index], options[index + delta]] = [
       options[index + delta],
       options[index],
     ];
-    onChange({ options });
+    onChange({
+      options,
+      ...(isSeq ? { correctIds: options.map((o) => o.id) } : {}),
+    });
   }
+
   return (
     <>
       {multi && (
@@ -54,14 +61,39 @@ export function QuestionOptionsEditor({
           )}
         </>
       )}
+
+      {isSeq && (
+        <>
+          <SelectField
+            label="Sequencing scoring"
+            value={slide.scoringMode ?? "all-or-nothing"}
+            onChange={(e) =>
+              onChange({ scoringMode: e.target.value as Slide["scoringMode"] })
+            }
+          >
+            <option value="all-or-nothing">All or nothing</option>
+            <option value="partial-credit">Partial credit</option>
+          </SelectField>
+          <p className="hint">
+            The target sequence order is the order defined below (Step 1 to
+            Step {slide.options.length}). Use Move Up / Move Down to set the
+            correct sequence.
+          </p>
+        </>
+      )}
+
       {slide.options.map((option, index) => {
-        const letter = String.fromCharCode(65 + index);
+        const letter = isSeq
+          ? `Step ${index + 1}`
+          : String.fromCharCode(65 + index);
         return (
           <fieldset className="answer-option-editor" key={option.id}>
-            <legend>Answer option {letter}</legend>
+            <legend>
+              {isSeq ? `Target ${letter}` : `Answer option ${letter}`}
+            </legend>
             <div className="option-edit">
               <TextField
-                label={`Option ${letter}`}
+                label={letter}
                 value={option.text}
                 onChange={(e) =>
                   onChange({
@@ -90,7 +122,7 @@ export function QuestionOptionsEditor({
                   label={`Remove option ${letter}`}
                   disabled={
                     slide.options.length <= 2 ||
-                    (!multi && slide.correctId === option.id) ||
+                    (!multi && !isSeq && slide.correctId === option.id) ||
                     (multi &&
                       slide.correctIds?.length === 1 &&
                       slide.correctIds.includes(option.id))
@@ -99,12 +131,12 @@ export function QuestionOptionsEditor({
                     const options = slide.options.filter(
                       (o) => o.id !== option.id,
                     );
-                    const correctIds = slide.correctIds?.filter(
-                      (id) => id !== option.id,
-                    );
+                    const correctIds = isSeq
+                      ? options.map((o) => o.id)
+                      : slide.correctIds?.filter((id) => id !== option.id);
                     onChange({
                       options,
-                      ...(multi
+                      ...(multi || isSeq
                         ? {
                             correctIds,
                             correctId: correctIds?.[0] ?? options[0].id,
@@ -170,19 +202,24 @@ export function QuestionOptionsEditor({
       })}
       <SecondaryButton
         disabled={slide.options.length >= 6}
-        onClick={() =>
+        onClick={() => {
+          const newOpt = {
+            id: crypto.randomUUID(),
+            text: isSeq
+              ? `Stage ${slide.options.length + 1}`
+              : "New option",
+          };
+          const nextOptions = [...slide.options, newOpt];
           onChange({
-            options: [
-              ...slide.options,
-              { id: crypto.randomUUID(), text: "New option" },
-            ],
-          })
-        }
+            options: nextOptions,
+            ...(isSeq ? { correctIds: nextOptions.map((o) => o.id) } : {}),
+          });
+        }}
       >
         <Plus />
-        Add answer option
+        {isSeq ? "Add sequence stage" : "Add answer option"}
       </SecondaryButton>
-      {!multi && (
+      {!multi && !isSeq && (
         <SelectField
           label="Demonstration correct answer"
           value={slide.correctId}

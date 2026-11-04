@@ -18,6 +18,7 @@ import {
   type SubmissionResult,
 } from "@/lib/interactions";
 import { ComposerSlide } from "./composer-slide";
+import { DaimlerVehicleIcon } from "./game-assets";
 import { canNavigate } from "@/lib/composer/runtime";
 import { type CourseData } from "@/lib/course";
 import {
@@ -181,7 +182,7 @@ export function Learner({
     setFeedback(null);
   }
   return (
-    <div className="learner" style={style}>
+    <div className={`learner ${t.style === "game" ? "learner-game-theme" : ""}`} style={style}>
       <div className="preview-bar">
         <span>
           LEARNER PREVIEW <span>· Temporary session</span>
@@ -213,22 +214,47 @@ export function Learner({
           )}
         </div>
       )}
-      <header className="learner-header">
+      <header className={`learner-header ${t.style === "game" ? "game-header" : ""}`}>
         <div>
-          {course.header.showLogo &&
-            (t.logo ? <img src={t.logo} alt="Course logo" /> : <Layers />)}
-          <div>
-            <strong>{course.header.title}</strong>
-            <small>{course.header.subtitle}</small>
-          </div>
+          {t.style === "game" ? (
+            <div className="game-brand-pill">
+              <DaimlerVehicleIcon className="game-truck-icon" />
+              <div className="game-title-group">
+                <span className="game-main-title">{course.header.title}</span>
+                <span className="game-title-separator">|</span>
+                <span className="game-sub-title">{slide?.levelTitle || course.header.subtitle}</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {course.header.showLogo &&
+                (t.logo ? <img src={t.logo} alt="Course logo" /> : <Layers />)}
+              <div>
+                <strong>{course.header.title}</strong>
+                <small>{course.header.subtitle}</small>
+              </div>
+            </>
+          )}
         </div>
         {course.header.showLife && (
-          <div className="life">
-            <Heart />
+          <div className="life game-life-meter">
+            <Heart className="heart-icon-beat" />
             <span>
-              Life <strong data-testid="life">{game.life}%</strong>
+              Life Meter <strong data-testid="life">{game.life}%</strong>
             </span>
-            <progress value={game.life} max={100} aria-label="Life" />
+            <div className="life-meter-track" aria-hidden="true">
+              <div
+                className="life-meter-fill"
+                style={{ width: `${game.life}%` }}
+              />
+            </div>
+            {t.style === "game" && (
+              <div className="game-star-counter">
+                <Star className="star-icon-gold" />
+                <span>{game.stars.length}/{course.levels.length || 6}</span>
+              </div>
+            )}
+            <progress className="sr-only" value={game.life} max={100} aria-label="Life" />
           </div>
         )}
       </header>
