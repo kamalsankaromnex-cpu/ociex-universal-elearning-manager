@@ -145,14 +145,41 @@ export class ScormSessionManager {
       );
       this.adapter.set("cmi.session_time", scorm2004Time(elapsed));
       this.adapter.set("cmi.exit", complete ? "normal" : "suspend");
-      this.adapter.set(
-        "cmi.success_status",
+      const success =
         complete || result.assessmentComplete
           ? result.success
             ? "passed"
             : "failed"
-          : "unknown",
+          : "unknown";
+      // A named manifest primary objective is a separate runtime record. Updating
+      // only the SCO's top-level CMI leaves its sequencing objective unknown.
+      const count = Number(this.adapter.get("cmi.objectives._count"));
+      if (!Number.isInteger(count) || count < 0 || count > 10000)
+        throw new Error("LMS objective count is invalid");
+      let slot = count;
+      for (let i = 0; i < count; i++) {
+        if (this.adapter.get(`cmi.objectives.${i}.id`) === "course_objective") {
+          slot = i;
+          break;
+        }
+      }
+      const objective = `cmi.objectives.${slot}`;
+      if (slot === count)
+        this.adapter.set(`${objective}.id`, "course_objective");
+      this.adapter.set(`${objective}.score.min`, "0");
+      this.adapter.set(`${objective}.score.max`, "100");
+      this.adapter.set(`${objective}.score.raw`, String(result.score));
+      this.adapter.set(`${objective}.score.scaled`, String(result.score / 100));
+      this.adapter.set(
+        `${objective}.progress_measure`,
+        String(Math.min(1, result.progress)),
       );
+      this.adapter.set(`${objective}.success_status`, success);
+      this.adapter.set(
+        `${objective}.completion_status`,
+        complete ? "completed" : "incomplete",
+      );
+      this.adapter.set("cmi.success_status", success);
       this.adapter.set(
         "cmi.completion_status",
         complete ? "completed" : "incomplete",

@@ -154,6 +154,10 @@ for (const version of ["1.2", "2004"] as const)
       if (version === "2004") {
         expect(values["cmi.success_status"]).toBe("passed");
         expect(values["cmi.score.scaled"]).toBe("1");
+        expect(values["cmi.objectives.0.id"]).toBe("course_objective");
+        expect(values["cmi.objectives.0.success_status"]).toBe("passed");
+        expect(values["cmi.objectives.0.completion_status"]).toBe("completed");
+        expect(values["cmi.objectives.0.score.scaled"]).toBe("1");
       }
       await resumed.screenshot({
         path: `docs/scorm/screenshots/player-${version}-${scope}.png`,

@@ -24,6 +24,10 @@ export function installMockLms(version: "1.2" | "2004") {
     values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "";
   if (new URLSearchParams(window.location.search).has("fresh-attempt"))
     values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "ab-initio";
+  if (version === "2004" && !values["cmi.objectives._count"]) {
+    values["cmi.objectives._count"] = "1";
+    values["cmi.objectives.0.id"] = "course_objective";
+  }
   const calls: string[] = [];
   w.__lmsValues = values;
   w.__lmsCalls = calls;
@@ -55,6 +59,15 @@ export function installMockLms(version: "1.2" | "2004") {
           "cmi.exit",
           "cmi.success_status",
           "cmi.completion_status",
+          "cmi.objectives._count",
+          "cmi.objectives.0.id",
+          "cmi.objectives.0.score.min",
+          "cmi.objectives.0.score.max",
+          "cmi.objectives.0.score.raw",
+          "cmi.objectives.0.score.scaled",
+          "cmi.objectives.0.progress_measure",
+          "cmi.objectives.0.success_status",
+          "cmi.objectives.0.completion_status",
         ];
   api[prefix + "Initialize"] = () => {
     calls.push("Initialize");

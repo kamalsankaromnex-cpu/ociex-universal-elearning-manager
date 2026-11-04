@@ -93,8 +93,10 @@ Open a course, save it, then use **Publishing**. Choose an individual level or f
 
 Regenerate the four seeded demo packages, two multi-level QA packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
 
-`npm test` runs 67 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 22 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+`npm test` runs 69 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 22 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
 
 SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents need no migration and remain valid.
 
 Latest reliability fixes and the ready-to-import two-level QA packages are documented in [remaining SCORM checks](docs/scorm/remaining-checks.md). Completed registrations reopen in read-only review; failed saves warn before reload. The user supplied real SCORM Cloud Level 01 completion/passed/100% evidence; broader external LMS acceptance remains separate.
+
+SCORM 2004 primary-objective reporting correction: [evidence, validation and retest steps](docs/scorm/fix-primary-objective.md).

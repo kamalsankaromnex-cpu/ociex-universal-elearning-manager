@@ -202,8 +202,48 @@ for (const version of ["1.2", "2004"] as const)
           version === "1.2" ? "cmi.core.lesson_status" : "cmi.success_status",
         ),
       ).toBe("failed");
-      if (version === "2004")
+      if (version === "2004") {
         expect(r.get("cmi.completion_status")).toBe("completed");
+        expect(r.get("cmi.objectives.0.success_status")).toBe("failed");
+        expect(r.get("cmi.objectives.0.completion_status")).toBe("completed");
+        expect(r.get("cmi.objectives.0.score.scaled")).toBe("0");
+      }
       session.terminate(state);
     });
+  });
+
+for (const preloaded of [false, true])
+  it(`updates the manifest primary objective (${preloaded ? "LMS-created" : "content-created"}) before terminating`, () => {
+    const api = new Scorm2004API({ logLevel: 5, autocommit: false });
+    api.cmi.entry = "ab-initio";
+    if (preloaded)
+      api.loadFromJSON({
+        cmi: { objectives: [{ id: "unrelated" }, { id: "course_objective" }] },
+      });
+    const course = demoCourse();
+    const session = new ScormSessionManager(
+      new Scorm2004Adapter(api as unknown as ScormApi),
+      course,
+      "objective",
+    );
+    let state = visit(course, session.initialize(), 0);
+    session.save(state);
+    const slot = preloaded ? 1 : 0;
+    expect(api.GetValue(`cmi.objectives.${slot}.id`)).toBe("course_objective");
+    expect(api.GetValue(`cmi.objectives.${slot}.completion_status`)).toBe(
+      "incomplete",
+    );
+    state = visit(course, state, 1);
+    state = answerQuestion(course, visit(course, state, 2), "a");
+    session.save(finishGame(course, state));
+    expect(api.GetValue(`cmi.objectives.${slot}.success_status`)).toBe(
+      "passed",
+    );
+    expect(api.GetValue(`cmi.objectives.${slot}.completion_status`)).toBe(
+      "completed",
+    );
+    expect(api.GetValue(`cmi.objectives.${slot}.score.scaled`)).toBe("1");
+    expect(api.GetValue(`cmi.objectives.${slot}.progress_measure`)).toBe("1");
+    expect(api.GetValue("cmi.objectives._count")).toBe(preloaded ? "2" : "1");
+    session.terminate(finishGame(course, state));
   });
