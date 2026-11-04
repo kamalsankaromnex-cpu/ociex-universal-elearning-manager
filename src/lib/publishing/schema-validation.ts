@@ -1,6 +1,7 @@
 import libxml from "libxmljs2";
 import { resolve, join } from "node:path";
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import type { ScormVersion } from "../scorm/types";
 export function validateManifest(xml: string, version: ScormVersion) {
   const dir = resolve(`vendor/scorm/${version}`);
@@ -21,11 +22,11 @@ export function validateManifest(xml: string, version: ScormVersion) {
           ["http://www.imsglobal.org/xsd/imsss", "imsss_v1p0.xsd"],
         ];
   for (const [, name] of imports) readFileSync(join(dir, name));
-  const wrapper = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">${imports.map(([ns, file]) => `<xs:import namespace="${ns}" schemaLocation="${join(dir, file)}"/>`).join("")}</xs:schema>`;
+  const wrapper = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">${imports.map(([ns, file]) => `<xs:import namespace="${ns}" schemaLocation="${pathToFileURL(join(dir, file)).href}"/>`).join("")}</xs:schema>`;
   const doc = libxml.parseXml(xml, { nonet: true }),
     schema = libxml.parseXml(wrapper, {
       nonet: true,
-      baseUrl: join(dir, "validation.xsd"),
+      baseUrl: pathToFileURL(join(dir, "validation.xsd")).href,
     });
   const valid = doc.validate(schema);
   return { valid, errors: doc.validationErrors.map((e) => e.message.trim()) };
