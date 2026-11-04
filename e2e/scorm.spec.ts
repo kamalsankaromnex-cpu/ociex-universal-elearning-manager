@@ -86,6 +86,29 @@ for (const version of ["1.2", "2004"] as const)
       });
       await page.goto(url);
       await expect(page.getByTestId("life")).toHaveText("100%");
+      await expect
+        .poll(() =>
+          page.evaluate(
+            (key) =>
+              (window as unknown as { __lmsValues: Record<string, string> })
+                .__lmsValues[key],
+            version === "1.2"
+              ? "cmi.core.lesson_status"
+              : "cmi.completion_status",
+          ),
+        )
+        .toBe("incomplete");
+      await expect
+        .poll(() =>
+          page.evaluate(
+            (key) =>
+              (window as unknown as { __lmsValues: Record<string, string> })
+                .__lmsValues[key],
+            version === "1.2" ? "cmi.core.score.raw" : "cmi.score.raw",
+          ),
+        )
+        .toBe("0");
+
       await page.getByRole("button", { name: "Vision Zero Challenge" }).click();
       await page.getByRole("radio", { name: /Demonstration option B/ }).check();
       await page.getByRole("button", { name: "Submit answer" }).click();
@@ -227,4 +250,39 @@ test("missing LMS API is explicit practice mode with no claimed LMS completion",
   await expect(
     page.getByRole("button", { name: "Finish learning", exact: true }),
   ).toBeDisabled();
+});
+
+test("2004 resumes canonical game state when the LMS bookmark is uninitialized (403)", async ({
+  page,
+  context,
+}) => {
+  await context.addInitScript(installMockLms, "2004" as const);
+  const url =
+    "http://127.0.0.1:4174/Daimler-EHS-Level-01-SCORM-2004-4th/index.html";
+  await page.goto(url);
+  await page.getByRole("button", { name: "Vision Zero Challenge" }).click();
+  await page.getByRole("radio", { name: /Demonstration option B/ }).check();
+  await page.getByRole("button", { name: "Submit answer" }).click();
+  await expect(page.getByTestId("life")).toHaveText("75%");
+  await page.close();
+  const resumed = await context.newPage();
+  await resumed.goto(url + "?uninitialized-bookmark=1");
+  await expect(resumed.getByTestId("life")).toHaveText("75%");
+  await expect(
+    resumed.getByRole("heading", { name: "Vision Zero Challenge" }),
+  ).toBeVisible();
+  await expect(resumed.locator(".tracking-alert")).toHaveCount(0);
+  await expect
+    .poll(() =>
+      resumed.evaluate(
+        () =>
+          (window as unknown as { __lmsValues: Record<string, string> })
+            .__lmsValues["cmi.completion_status"],
+      ),
+    )
+    .toBe("incomplete");
+  await resumed.screenshot({
+    path: "docs/scorm/screenshots/scorm2004-403-resume-fixed.png",
+    fullPage: true,
+  });
 });

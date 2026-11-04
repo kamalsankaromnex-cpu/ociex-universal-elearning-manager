@@ -87,10 +87,12 @@ Daimler EHS content, example answer keys, illustrative pillars and both brand pr
 
 ## Dual SCORM publishing
 
+**SCORM Cloud startup error 403:** the uninitialized bookmark fix is included in the regenerated ZIPs. See [the correction and re-import steps](docs/scorm/fix-uninitialized-bookmark.md).
+
 Open a course, save it, then use **Publishing**. Choose an individual level or full course and SCORM 1.2 or SCORM 2004 4th Edition. Validate the saved revision, then export the ZIP. Unsaved drafts cannot export; stale revisions return a conflict. Both versions reuse the same learner/game model. Questions can be mandatory or optional with a configured life penalty; recovery slides and course defaults are editable. Mandatory competencies must be passed before completion.
 
 Regenerate the four seeded demo packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
 
-`npm test` runs 40 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 13 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+`npm test` runs 50 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 14 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
 
 SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents need no migration and remain valid.

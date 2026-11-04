@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -17,6 +18,7 @@ async function main() {
   const data = record.data as { levels: { id: string }[] };
   await mkdir("deliverables/scorm", { recursive: true });
   const report = [];
+  const integrity = [];
   for (const scope of ["level", "course"] as const)
     for (const version of ["1.2", "2004"] as const) {
       const result = await new CourseExportService().export(
@@ -36,7 +38,25 @@ async function main() {
       if (!validation.valid || validation.errors.length)
         throw new Error(JSON.stringify(validation));
       const filename = `Daimler-EHS-${scope === "level" ? "Level-01" : "Full-Course"}-SCORM-${version === "1.2" ? "1.2" : "2004-4th"}.zip`;
+      for (const [path, bytes] of Object.entries(result.files)) {
+        if (/(^|\/)(\.env|node_modules|src|\.git)(\/|$)/.test(path))
+          throw new Error("Forbidden package member");
+        for (const key of ["ADMIN_PASSWORD", "SESSION_SECRET", "DATABASE_URL"])
+          if (
+            process.env[key] &&
+            Buffer.from(bytes).includes(Buffer.from(process.env[key]!))
+          )
+            throw new Error("Configured credential value found in package");
+      }
       await writeFile(`deliverables/scorm/${filename}`, result.zip);
+      integrity.push({
+        file: filename,
+        sha256: createHash("sha256").update(result.zip).digest("hex"),
+        entries: Object.keys(result.files).length,
+        secretValueMatches: 0,
+        manifestAtRoot: !!result.files["imsmanifest.xml"],
+        metadata: result.metadata,
+      });
       report.push({
         file: filename,
         ...result.metadata,
@@ -48,6 +68,14 @@ async function main() {
   await writeFile(
     "deliverables/scorm/manifest-validation.json",
     JSON.stringify(report, null, 2) + "\n",
+  );
+  await writeFile(
+    "deliverables/scorm/integrity-report.json",
+    JSON.stringify(
+      { date: new Date().toISOString().slice(0, 10), packages: integrity },
+      null,
+      2,
+    ) + "\n",
   );
   console.log(
     JSON.stringify(

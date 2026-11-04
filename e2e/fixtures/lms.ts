@@ -68,6 +68,18 @@ export function installMockLms(version: "1.2" | "2004") {
       error = "401";
       return "";
     }
+    if (
+      version === "2004" &&
+      ["cmi.location", "cmi.suspend_data"].includes(name) &&
+      (!Object.hasOwn(values, name) ||
+        (name === "cmi.location" &&
+          new URLSearchParams(window.location.search).has(
+            "uninitialized-bookmark",
+          )))
+    ) {
+      error = "403";
+      return "";
+    }
     error = "0";
     return values[name] || "";
   };

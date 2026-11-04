@@ -33,14 +33,14 @@ export class ScormSessionManager {
     const entry = this.adapter.get(
       this.adapter.version === "1.2" ? "cmi.core.entry" : "cmi.entry",
     );
-    const data = this.adapter.get("cmi.suspend_data");
-    const location = this.adapter.get(
-      this.adapter.version === "1.2"
-        ? "cmi.core.lesson_location"
-        : "cmi.location",
-    );
     let state = initialGame();
     if (entry === "resume") {
+      const data = this.adapter.get("cmi.suspend_data");
+      const location = this.adapter.get(
+        this.adapter.version === "1.2"
+          ? "cmi.core.lesson_location"
+          : "cmi.location",
+      );
       if (data) {
         state = ResumeStateSerializer.deserialize(
           data,

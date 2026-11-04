@@ -2,44 +2,8 @@
   "date": "2026-11-04",
   "packages": [
     {
-      "file": "Daimler-EHS-Full-Course-SCORM-1.2.zip",
-      "sha256": "888f293e5d2089e66c7e503de597829a883ad15fd443388316838ae8a27977d7",
-      "entries": 16,
-      "secretValueMatches": 0,
-      "manifestAtRoot": true,
-      "metadata": {
-        "publisher": "Coursecraft",
-        "format": "SCORM 1.2",
-        "revision": 1,
-        "scope": "course",
-        "level": null,
-        "title": "Daimler EHS",
-        "fingerprint": "e60f3f4daf6aff1664c58310911ddc0d286af9b18a1007370cf3058d0f546df6",
-        "exportedAt": "2026-11-04T07:18:58.775Z",
-        "singleSco": true
-      }
-    },
-    {
-      "file": "Daimler-EHS-Full-Course-SCORM-2004-4th.zip",
-      "sha256": "846fe09865ddbf9d4eb3d71ad19eb744e46bd0e32bde84d732c1fdffc57101b7",
-      "entries": 29,
-      "secretValueMatches": 0,
-      "manifestAtRoot": true,
-      "metadata": {
-        "publisher": "Coursecraft",
-        "format": "SCORM 2004 4th Edition",
-        "revision": 1,
-        "scope": "course",
-        "level": null,
-        "title": "Daimler EHS",
-        "fingerprint": "d473a875a1490a38ded6c60006241d1aa63bc6a36d9e328a79760cb22514ed5b",
-        "exportedAt": "2026-11-04T07:18:58.816Z",
-        "singleSco": true
-      }
-    },
-    {
       "file": "Daimler-EHS-Level-01-SCORM-1.2.zip",
-      "sha256": "e375f73182bb891e78c1b749d6eb8bba025ddb0332e2113926ae45d826c1fff2",
+      "sha256": "9f8b376d250955cc864bb838dfb38f38b425325554b830898dd7088c9f7b3ed0",
       "entries": 16,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -51,13 +15,13 @@
         "level": "Level 01 — EHS Vision & Strategy",
         "title": "Daimler EHS",
         "fingerprint": "76e810c381f6aa82eeecffc48549b3bf74d06fc87e42a4f4e1aa3d3548f6e50d",
-        "exportedAt": "2026-11-04T07:18:58.485Z",
+        "exportedAt": "2026-11-04T09:30:17.829Z",
         "singleSco": true
       }
     },
     {
       "file": "Daimler-EHS-Level-01-SCORM-2004-4th.zip",
-      "sha256": "84cdad88bc9fa52060bbc5a58db448cb625827f067eefe4161ab58e172bdaa71",
+      "sha256": "4f8fa9183673aa5e2d61eca496d7936adc28de0af334dee563f57378fb193d13",
       "entries": 29,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -69,7 +33,43 @@
         "level": "Level 01 — EHS Vision & Strategy",
         "title": "Daimler EHS",
         "fingerprint": "08c73f5f241d213f40bb04d06ca573caf61c11f6a82a6b379269cb1b5e1702ee",
-        "exportedAt": "2026-11-04T07:18:58.730Z",
+        "exportedAt": "2026-11-04T09:30:18.087Z",
+        "singleSco": true
+      }
+    },
+    {
+      "file": "Daimler-EHS-Full-Course-SCORM-1.2.zip",
+      "sha256": "a2b9618587190a03b1c85a4256c2b89cb2865f479eeeb21436e7f226db0cbc08",
+      "entries": 16,
+      "secretValueMatches": 0,
+      "manifestAtRoot": true,
+      "metadata": {
+        "publisher": "Coursecraft",
+        "format": "SCORM 1.2",
+        "revision": 1,
+        "scope": "course",
+        "level": null,
+        "title": "Daimler EHS",
+        "fingerprint": "e60f3f4daf6aff1664c58310911ddc0d286af9b18a1007370cf3058d0f546df6",
+        "exportedAt": "2026-11-04T09:30:18.136Z",
+        "singleSco": true
+      }
+    },
+    {
+      "file": "Daimler-EHS-Full-Course-SCORM-2004-4th.zip",
+      "sha256": "b12172d74eb5ca636dc653658e8747a565ba92e7806e85b7059fd9a2b29d3dcc",
+      "entries": 29,
+      "secretValueMatches": 0,
+      "manifestAtRoot": true,
+      "metadata": {
+        "publisher": "Coursecraft",
+        "format": "SCORM 2004 4th Edition",
+        "revision": 1,
+        "scope": "course",
+        "level": null,
+        "title": "Daimler EHS",
+        "fingerprint": "d473a875a1490a38ded6c60006241d1aa63bc6a36d9e328a79760cb22514ed5b",
+        "exportedAt": "2026-11-04T09:30:18.184Z",
         "singleSco": true
       }
     }

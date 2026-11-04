@@ -296,3 +296,41 @@ for (const version of ["1.2", "2004"] as const) {
     expect(() => session.save(initialGame())).toThrow(/not active/);
   });
 }
+for (const element of ["cmi.location", "cmi.suspend_data"])
+  it(`2004 treats uninitialized ${element} (403) as empty`, () => {
+    const api: ScormApi = { GetValue: () => "", GetLastError: () => "403" };
+    expect(new Scorm2004Adapter(api).get(element)).toBe("");
+  });
+for (const [version, element, value, code] of [
+  ["1.2", "cmi.core.lesson_location", "", "403"],
+  ["2004", "cmi.location", "", "401"],
+  ["2004", "cmi.entry", "", "403"],
+  ["2004", "cmi.location", "unexpected-value", "403"],
+] as const)
+  it(`${version} retains real LMS errors for ${element}, ${code}, ${value || "empty"}`, () => {
+    const api: ScormApi = {
+      [version === "1.2" ? "LMSGetValue" : "GetValue"]: () => value,
+      [version === "1.2" ? "LMSGetLastError" : "GetLastError"]: () => code,
+    };
+    const adapter =
+      version === "1.2" ? new Scorm12Adapter(api) : new Scorm2004Adapter(api);
+    expect(() => adapter.get(element)).toThrow(`code ${code}`);
+  });
+for (const version of ["1.2", "2004"] as const)
+  it(`${version} fresh launch does not read uninitialized resume-only values`, () => {
+    const m = mock(version),
+      get = version === "1.2" ? "LMSGetValue" : "GetValue";
+    m.api[get] = (element) => {
+      if (element === (version === "1.2" ? "cmi.core.entry" : "cmi.entry"))
+        return "ab-initio";
+      throw new Error("Unexpected resume read");
+    };
+    const session = new ScormSessionManager(
+      version === "1.2"
+        ? new Scorm12Adapter(m.api)
+        : new Scorm2004Adapter(m.api),
+      newCourse("Fresh launch"),
+      "fresh",
+    );
+    expect(session.initialize()).toEqual(initialGame());
+  });

@@ -8,13 +8,13 @@
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
     "fingerprint": "76e810c381f6aa82eeecffc48549b3bf74d06fc87e42a4f4e1aa3d3548f6e50d",
-    "exportedAt": "2026-11-04T07:18:58.485Z",
+    "exportedAt": "2026-11-04T09:30:17.829Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 295885,
+    "bytes": 295921,
     "packagedFiles": 16
   },
   {
@@ -26,13 +26,13 @@
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
     "fingerprint": "08c73f5f241d213f40bb04d06ca573caf61c11f6a82a6b379269cb1b5e1702ee",
-    "exportedAt": "2026-11-04T07:18:58.730Z",
+    "exportedAt": "2026-11-04T09:30:18.087Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 310230,
+    "bytes": 310265,
     "packagedFiles": 29
   },
   {
@@ -44,13 +44,13 @@
     "level": null,
     "title": "Daimler EHS",
     "fingerprint": "e60f3f4daf6aff1664c58310911ddc0d286af9b18a1007370cf3058d0f546df6",
-    "exportedAt": "2026-11-04T07:18:58.775Z",
+    "exportedAt": "2026-11-04T09:30:18.136Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 295832,
+    "bytes": 295866,
     "packagedFiles": 16
   },
   {
@@ -62,13 +62,13 @@
     "level": null,
     "title": "Daimler EHS",
     "fingerprint": "d473a875a1490a38ded6c60006241d1aa63bc6a36d9e328a79760cb22514ed5b",
-    "exportedAt": "2026-11-04T07:18:58.816Z",
+    "exportedAt": "2026-11-04T09:30:18.184Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 310175,
+    "bytes": 310211,
     "packagedFiles": 29
   }
 ]

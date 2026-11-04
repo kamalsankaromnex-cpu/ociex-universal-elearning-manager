@@ -19,7 +19,7 @@ For **each of the four packages**:
 9. Use a multi-level fixture with recovery slides: check shared life, earned stars, configured restoration, zero-life current-level retry and retention of earlier stars. Confirm standalone level exports start their own life/completion.
 10. Inspect browser console and Cloud API debug logs for unsupported data elements, truncation, sequencing, commit and termination errors. Record exact symptoms without credentials or raw learner suspend data.
 
-Cloud result table — **all currently Not run**:
+Patched-package Cloud result table — **Not run by this review**. A user reported a failed earlier SCORM 2004 launch (scope not specified) with error 403. The [corrected packages](fix-uninitialized-bookmark.md) require a new Cloud registration test:
 
 | Package               | Import  | Launch  | Incomplete/completed | Pass/fail/score | Resume/close | Debug errors  |
 | --------------------- | ------- | ------- | -------------------- | --------------- | ------------ | ------------- |

@@ -56,6 +56,16 @@ abstract class BaseAdapter implements ScormAdapter {
   get(element: string) {
     const value = this.call(this.methods.get, element),
       code = this.call(this.methods.error);
+    // SCORM 2004 403 is "Data Model Element Value Not Initialized".
+    // Only empty, optional resume fields have a valid empty fallback. Never
+    // suppress 1.2 errors, unsupported-element errors, or failed writes.
+    if (
+      this.version === "2004" &&
+      code === "403" &&
+      value === "" &&
+      (element === "cmi.location" || element === "cmi.suspend_data")
+    )
+      return "";
     if (code !== "0")
       throw new Error(`LMS read ${element} failed (code ${code})`);
     return value;
