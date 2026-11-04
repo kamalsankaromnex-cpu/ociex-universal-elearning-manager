@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  isQuestion,
+  normalizeSubmission,
+  selectionIds,
+  type SubmissionResult,
+} from "./interactions";
 import type { CourseData } from "./course";
 export const gameStateSchema = z.object({
   life: z.number().int().min(0).max(100),
@@ -11,6 +17,15 @@ export const gameStateSchema = z.object({
   stars: z.array(z.number().int().min(0)),
   attempts: z.number().int().min(0).max(1000000),
   finished: z.boolean(),
+  multi: z
+    .record(
+      z.string().regex(/^(0|[1-9]\d*)$/),
+      z.object({
+        selection: z.number().int().min(1).max(63),
+        credit: z.number().int().min(0).max(10000),
+      }),
+    )
+    .optional(),
 });
 export type LearnerGameState = z.infer<typeof gameStateSchema>;
 export const initialGame = (): LearnerGameState => ({
@@ -36,7 +51,7 @@ export const flatten = (course: CourseData) =>
 export function assessment(course: CourseData, state: LearnerGameState) {
   const slides = flatten(course),
     questions = slides.flatMap((s, i) =>
-      s.kind === "single-choice" &&
+      isQuestion(s) &&
       s.scored !== false &&
       (s.mandatory !== false || course.rules?.optionalScoring !== "exclude") &&
       (s.mandatory !== false ||
@@ -48,14 +63,19 @@ export function assessment(course: CourseData, state: LearnerGameState) {
     );
   const mandatory = slides.every(
     (s, i) =>
-      s.kind !== "single-choice" ||
-      s.mandatory === false ||
-      state.passed.includes(i),
+      !isQuestion(s) || s.mandatory === false || state.passed.includes(i),
   );
   const visited = slides.every((_, i) => state.visited.includes(i));
   const score = questions.length
     ? Math.round(
-        (questions.filter((i) => state.passed.includes(i)).length /
+        (questions.reduce(
+          (total, i) =>
+            total +
+            (state.passed.includes(i)
+              ? 1
+              : (state.multi?.[i]?.credit ?? 0) / 10000),
+          0,
+        ) /
           questions.length) *
           100,
       )
@@ -80,7 +100,7 @@ function award(course: CourseData, state: LearnerGameState) {
       entries.every(
         (i) =>
           state.visited.includes(i) &&
-          (slides[i].kind !== "single-choice" ||
+          (!isQuestion(slides[i]) ||
             slides[i].mandatory === false ||
             state.passed.includes(i)),
       ) &&
@@ -110,22 +130,55 @@ export function answerQuestion(
   answer: string,
 ) {
   const slide = flatten(course)[state.index];
+  if (!slide || slide.kind !== "single-choice") return state;
+  return submitQuestion(course, state, normalizeSubmission(slide, [answer]));
+}
+export function submitQuestion(
+  course: CourseData,
+  state: LearnerGameState,
+  result: SubmissionResult | null,
+) {
+  const slide = flatten(course)[state.index];
   if (
     state.finished ||
-    !slide ||
-    slide.kind !== "single-choice" ||
     state.life === 0 ||
-    !slide.options.some((o) => o.id === answer)
+    !slide ||
+    !result ||
+    result.slideId !== slide.id ||
+    result.kind !== slide.kind
   )
     return state;
-  if (answer === slide.correctId)
-    return award(course, {
-      ...state,
-      passed: [...new Set([...state.passed, state.index])],
-    });
-  if (state.penalized.includes(state.index)) return state;
+  const checked = normalizeSubmission(
+    slide,
+    selectionIds(slide, result.selection),
+  );
+  if (
+    !checked ||
+    checked.selection !== result.selection ||
+    checked.credit !== result.credit ||
+    checked.correct !== result.correct
+  )
+    return state;
+  let next = state;
+  if (slide.kind === "multi-select") {
+    const previous = state.multi?.[state.index];
+    const entry = {
+      selection: result.selection,
+      credit: Math.max(previous?.credit ?? 0, result.credit),
+    };
+    if (
+      previous?.selection !== entry.selection ||
+      previous?.credit !== entry.credit
+    )
+      next = { ...next, multi: { ...state.multi, [state.index]: entry } };
+  }
+  if (result.correct) {
+    if (state.passed.includes(state.index)) return next;
+    return award(course, { ...next, passed: [...state.passed, state.index] });
+  }
+  if (state.penalized.includes(state.index)) return next;
   return {
-    ...state,
+    ...next,
     life: Math.max(
       0,
       state.life - (slide.lifePenalty ?? course.rules?.penalty ?? 25),
@@ -171,6 +224,15 @@ export function retryLevel(course: CourseData, state: LearnerGameState) {
     stars: state.stars.filter((l) => l !== level),
     completedLevels: state.completedLevels.filter((l) => l !== level),
     attempts: state.attempts + 1,
+    ...(state.multi
+      ? {
+          multi: Object.fromEntries(
+            Object.entries(state.multi).filter(
+              ([index]) => slides[Number(index)]?.levelIndex !== level,
+            ),
+          ),
+        }
+      : {}),
     finished: false,
   };
 }
@@ -178,4 +240,45 @@ export function finishGame(course: CourseData, state: LearnerGameState) {
   return assessment(course, state).eligible
     ? { ...state, finished: true }
     : state;
+}
+
+/** Check compact multi-select resume records against this immutable package. */
+export function validateMultiResume(
+  course: CourseData,
+  state: LearnerGameState,
+) {
+  const slides = flatten(course);
+  for (const [index, slide] of slides.entries()) {
+    if (
+      slide.kind === "multi-select" &&
+      (state.passed.includes(index) || state.penalized.includes(index)) &&
+      !state.multi?.[index]
+    )
+      throw new Error("Multi-select resume credit is missing");
+  }
+  for (const [key, entry] of Object.entries(state.multi ?? {})) {
+    const index = Number(key),
+      slide = slides[index];
+    if (!slide || slide.kind !== "multi-select")
+      throw new Error("Multi-select resume question is invalid");
+    const result = normalizeSubmission(
+      slide,
+      selectionIds(slide, entry.selection),
+    );
+    const allowed =
+      slide.scoringMode === "partial-credit"
+        ? Array.from({ length: slide.correctIds!.length + 1 }, (_, i) =>
+            Math.round((i / slide.correctIds!.length) * 10000),
+          )
+        : [0, 10000];
+    if (
+      !result ||
+      result.selection !== entry.selection ||
+      !allowed.includes(entry.credit) ||
+      entry.credit < result.credit ||
+      (entry.credit === 10000) !== state.passed.includes(index) ||
+      (!result.correct && !state.penalized.includes(index))
+    )
+      throw new Error("Multi-select resume score or selection is invalid");
+  }
 }

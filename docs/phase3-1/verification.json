@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-04T14:03:00.681Z",
+  "base": "2669ffd",
+  "unitTests": 114,
+  "browserTests": 30,
+  "build": "passed",
+  "lint": "passed",
+  "typecheck": "passed",
+  "databaseMigration": "not required; Course.data JSONB extended",
+  "existingCoursesPreserved": true,
+  "packagesChecked": 8,
+  "archivedRegressionPackagesMatched": 4,
+  "manifestSchemas": "8 passed",
+  "packageHashes": "matched",
+  "configuredCredentialMatches": 0,
+  "externalLmsVerification": "unverified for new artifacts",
+  "manualScreenReaderDeviceAudit": "not performed",
+  "otherPhase3Modules": "not started"
+}

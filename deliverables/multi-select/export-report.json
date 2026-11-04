@@ -1,0 +1,80 @@
+[
+  {
+    "file": "Machine-Guarding-Multi-Select-SCORM-1.2.zip",
+    "sha256": "f1e56bd2a2ef028f87d719467f74cd5a76f0d2fc4ac9d2bc86eb00b59a4a51ec",
+    "bytes": 299000,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 1.2",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "Machine guarding — multi-select demonstration",
+      "fingerprint": "756d0e6a1fdaab3a90d8b242d2e956147d5aad3e69f023cd29d861b356b51fa3",
+      "exportedAt": "2026-11-04T13:51:25.077Z",
+      "singleSco": true,
+      "publisherVersion": "phase3.1",
+      "scoringPolicy": {
+        "passingScore": 80,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-correct-in-attempt",
+        "completion": "all-visited-mandatory-correct-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 80%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  },
+  {
+    "file": "Machine-Guarding-Multi-Select-SCORM-2004-4th.zip",
+    "sha256": "9678a2e54889dc2b77c78a49b8b77a7e7796e50120622b725e1ca733ec93df07",
+    "bytes": 313331,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 2004 4th Edition",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "Machine guarding — multi-select demonstration",
+      "fingerprint": "2c6235bddc304ada2f05412a4e100f7bb55539e6a7250da1efedddf31344a0b8",
+      "exportedAt": "2026-11-04T13:51:25.356Z",
+      "singleSco": true,
+      "publisherVersion": "phase3.1",
+      "scoringPolicy": {
+        "passingScore": 80,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-correct-in-attempt",
+        "completion": "all-visited-mandatory-correct-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 80%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  }
+]

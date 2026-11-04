@@ -34,13 +34,22 @@ export const slideSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(1).max(200),
-    kind: z.enum(["content", "single-choice", "recovery"]),
+    kind: z.enum(["content", "single-choice", "multi-select", "recovery"]),
     text: z.string().max(10000),
     image: media,
     background: z.union([color, z.literal("")]),
     options: z
       .array(
-        z.object({ id: z.string(), text: z.string().trim().min(1).max(500) }),
+        z
+          .object({
+            id: z.string().min(1),
+            text: z.string().trim().min(1).max(500),
+            image: media.optional(),
+            imageAlt: z.string().max(200).optional(),
+          })
+          .refine((o) => !o.image || !!o.imageAlt?.trim(), {
+            message: "Add alternative text for answer images",
+          }),
       )
       .min(2)
       .max(6),
@@ -49,15 +58,33 @@ export const slideSchema = z
     lifePenalty: z.number().int().min(0).max(100).optional(),
     lifeRecovery: z.number().int().min(0).max(100).optional(),
     correctId: z.string(),
+    correctIds: z.array(z.string().min(1)).min(1).max(6).optional(),
+    scoringMode: z.enum(["all-or-nothing", "partial-credit"]).optional(),
+    partialFeedback: z.string().min(1).max(1000).optional(),
     correctFeedback: z.string().min(1).max(1000),
     incorrectFeedback: z.string().min(1).max(1000),
   })
-  .refine((s) => s.options.some((o) => o.id === s.correctId), {
-    message: "Choose an existing correct option",
-  })
+  .refine(
+    (s) =>
+      s.kind === "multi-select" || s.options.some((o) => o.id === s.correctId),
+    {
+      message: "Choose an existing correct option",
+    },
+  )
   .refine(
     (s) => new Set(s.options.map((o) => o.id)).size === s.options.length,
     { message: "Option IDs must be unique" },
+  )
+  .refine(
+    (s) =>
+      s.kind !== "multi-select" ||
+      (!!s.correctIds?.length &&
+        new Set(s.correctIds).size === s.correctIds.length &&
+        s.correctIds.every((id) => s.options.some((o) => o.id === id))),
+    {
+      message:
+        "Select at least one existing correct answer; correct answers must be unique",
+    },
   );
 export const courseSchema = z
   .object({

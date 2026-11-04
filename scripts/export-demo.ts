@@ -8,6 +8,7 @@ import { validateManifest } from "./validate-scorm";
 import { strFromU8 } from "fflate";
 import { PackageBuilder } from "../src/lib/publishing/package-builder";
 import { ExportValidator } from "../src/lib/publishing/validator";
+import { PUBLISHER_VERSION } from "../src/lib/publishing/types";
 import { trackingQaCourse } from "../src/lib/publishing/qa-course";
 const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
@@ -105,7 +106,7 @@ async function main() {
       .update(
         JSON.stringify({
           fixture: "tracking-qa-v2",
-          publisherVersion: "phase2.1",
+          publisherVersion: PUBLISHER_VERSION,
           version,
           course,
         }),

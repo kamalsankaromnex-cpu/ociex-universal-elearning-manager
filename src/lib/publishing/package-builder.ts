@@ -5,7 +5,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import type { CourseData } from "../course";
-import type { ExportRequest } from "./types";
+import { PUBLISHER_VERSION, type ExportRequest } from "./types";
 import { ManifestGenerator12, ManifestGenerator2004 } from "./manifests";
 let bundle: Promise<string> | undefined;
 async function playerBundle() {
@@ -47,7 +47,11 @@ export class PackageBuilder {
     copy.theme.logo = media(copy.theme.logo);
     copy.theme.backgroundImage = media(copy.theme.backgroundImage);
     for (const l of copy.levels)
-      for (const s of l.slides) s.image = media(s.image);
+      for (const s of l.slides) {
+        s.image = media(s.image);
+        for (const option of s.options)
+          if (option.image) option.image = media(option.image);
+      }
     const metadata = {
       publisher: "Coursecraft",
       format:
@@ -59,7 +63,7 @@ export class PackageBuilder {
       fingerprint,
       exportedAt: new Date().toISOString(),
       singleSco: true,
-      publisherVersion: "phase2.1",
+      publisherVersion: PUBLISHER_VERSION,
       scoringPolicy: {
         passingScore: copy.rules?.passScore ?? 80,
         optional: copy.rules?.optionalScoring ?? "include",

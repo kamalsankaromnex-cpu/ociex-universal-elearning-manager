@@ -1,0 +1,74 @@
+{
+  "title": "Machine guarding — multi-select demonstration",
+  "description": "Phase 3.1 authoring and SCORM acceptance fixture, not approved safety training.",
+  "theme": {
+    "background": "#F1F5F9",
+    "section": "#FFFFFF",
+    "header": "#123347",
+    "navigation": "#2563EB",
+    "text": "#0F172A",
+    "muted": "#64748B",
+    "primary": "#2563EB",
+    "buttonText": "#FFFFFF",
+    "border": "#CBD5E1",
+    "card": "#FFFFFF",
+    "icon": "#2563EB",
+    "life": "#16A34A",
+    "star": "#D97706",
+    "font": "Inter",
+    "fontSize": 16,
+    "radius": 16,
+    "logo": "",
+    "backgroundImage": ""
+  },
+  "header": {
+    "title": "Machine guarding — multi-select demonstration",
+    "subtitle": "Interactive learning experience",
+    "showLife": true,
+    "showLogo": true
+  },
+  "levels": [
+    {
+      "id": "machine-guarding-demo-level",
+      "title": "Machine guarding demonstration",
+      "slides": [
+        {
+          "id": "machine-guarding-demo-question",
+          "title": "Machine guarding — demonstration",
+          "kind": "multi-select",
+          "text": "Demonstration only — requires qualified safety/content-owner review before training use. On this illustrative machine-guarding card, select the two items that describe guarding controls. This is not an operating, servicing or lockout procedure.",
+          "image": "",
+          "background": "",
+          "options": [
+            {
+              "id": "a",
+              "text": "Fixed protective barrier"
+            },
+            {
+              "id": "b",
+              "text": "Interlocked access gate"
+            },
+            {
+              "id": "c",
+              "text": "Production target"
+            },
+            {
+              "id": "d",
+              "text": "Machine paint color"
+            }
+          ],
+          "mandatory": true,
+          "correctId": "a",
+          "correctIds": [
+            "a",
+            "b"
+          ],
+          "scoringMode": "partial-credit",
+          "partialFeedback": "You identified part of the illustrative answer set. Review the remaining choices; a mandatory question needs the exact set.",
+          "correctFeedback": "You selected both illustrative guarding controls and no distractors. Have the activity reviewed against the actual equipment and local requirements before training use.",
+          "incorrectFeedback": "Review the distinction between guarding controls and the illustrative distractors. This demonstration is not approved safety guidance."
+        }
+      ]
+    }
+  ]
+}

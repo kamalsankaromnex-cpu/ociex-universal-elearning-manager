@@ -1,3 +1,4 @@
+import { isQuestion } from "../interactions";
 import { courseSchema, type CourseData } from "../course";
 import { flatten, initialGame } from "../game";
 import { ResumeStateSerializer } from "../scorm/resume";
@@ -34,7 +35,10 @@ export class ExportValidator {
     for (const value of [
       course.theme.logo,
       course.theme.backgroundImage,
-      ...flatten(course).map((s) => s.image),
+      ...flatten(course).flatMap((s) => [
+        s.image,
+        ...s.options.map((o) => o.image ?? ""),
+      ]),
     ])
       if (value && !value.startsWith("data:image/"))
         errors.push("Re-upload missing media before exporting.");
@@ -42,10 +46,12 @@ export class ExportValidator {
       if (slide.kind === "content" && !slide.text.trim() && !slide.image)
         errors.push(`Slide "${slide.title}" needs text or an image.`);
       if (
-        slide.kind === "single-choice" &&
+        isQuestion(slide) &&
         (!slide.text.trim() ||
           slide.options.some((o) => !o.text.trim()) ||
-          !slide.correctId)
+          (slide.kind === "multi-select"
+            ? !slide.correctIds?.length
+            : !slide.correctId))
       )
         errors.push(
           `Question "${slide.title}" needs a prompt, answer options and a correct answer.`,
@@ -54,7 +60,10 @@ export class ExportValidator {
     for (const value of [
       course.theme.logo,
       course.theme.backgroundImage,
-      ...flatten(course).map((s) => s.image),
+      ...flatten(course).flatMap((s) => [
+        s.image,
+        ...s.options.map((o) => o.image ?? ""),
+      ]),
     ].filter(Boolean)) {
       const match =
         /^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/=]+)$/.exec(
@@ -81,7 +90,7 @@ export class ExportValidator {
     if (
       !flatten(course).some(
         (s) =>
-          s.kind === "single-choice" &&
+          isQuestion(s) &&
           s.scored !== false &&
           (s.mandatory !== false ||
             course.rules?.optionalScoring !== "exclude"),
@@ -100,6 +109,8 @@ export class ExportValidator {
         ...slide.options.map((o) => o.text),
         slide.correctFeedback,
         slide.incorrectFeedback,
+        slide.partialFeedback ?? "",
+        ...slide.options.map((o) => o.imageAlt ?? ""),
       ])
         if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(text))
           errors.push(
@@ -117,6 +128,25 @@ export class ExportValidator {
           recovered: full,
           completedLevels: levels,
           stars: levels,
+          ...(flatten(course).some((s) => s.kind === "multi-select")
+            ? {
+                multi: Object.fromEntries(
+                  flatten(course).flatMap((s, i) =>
+                    s.kind === "multi-select"
+                      ? [
+                          [
+                            i,
+                            {
+                              selection: (1 << s.options.length) - 1,
+                              credit: 10000,
+                            },
+                          ],
+                        ]
+                      : [],
+                  ),
+                ),
+              }
+            : {}),
         },
         "f".repeat(64),
         count,

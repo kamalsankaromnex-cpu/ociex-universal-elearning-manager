@@ -3,7 +3,11 @@ import { courseSchema } from "../course";
 import { db } from "../db";
 import { PackageBuilder } from "./package-builder";
 import { ExportValidator } from "./validator";
-import { exportRequestSchema, type ExportRequest } from "./types";
+import {
+  PUBLISHER_VERSION,
+  exportRequestSchema,
+  type ExportRequest,
+} from "./types";
 export class ExportError extends Error {
   constructor(
     message: string,
@@ -49,7 +53,7 @@ export class CourseExportService {
     const fingerprint = createHash("sha256")
       .update(
         JSON.stringify({
-          publisherVersion: "phase2.1",
+          publisherVersion: PUBLISHER_VERSION,
           revision: snapshot.request.revision,
           scope: snapshot.request.scope,
           version: snapshot.request.version,

@@ -2804,3 +2804,11 @@ footer {
 
 [role="tabpanel"][hidden] { display: none; }
 .modal { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+
+.answer-option-editor { min-width: 0; border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin: 16px 0; }
+.answer-option-editor legend { color: var(--secondary); font-size: 13px; padding: 0 6px; }
+.answer-option-editor .option-edit { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.answer-option-editor .actions { gap: 4px; flex-wrap: wrap; }
+.answer-options .answer-image { width: 96px; max-height: 96px; object-fit: contain; }
+.learner .multi-score { color: var(--l-muted); font-size: 14px; }
+@media (max-width: 600px) { .answer-option-editor .option-edit { grid-template-columns: minmax(0,1fr); } }

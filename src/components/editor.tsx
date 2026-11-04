@@ -18,6 +18,9 @@ import {
   Copy,
   FileArchive,
 } from "lucide-react";
+import { machineGuardingSlide } from "@/lib/machine-guarding-sample";
+import { QuestionOptionsEditor } from "./question-options-editor";
+import { isQuestion } from "@/lib/interactions";
 import { PublishingManager } from "./publishing";
 import {
   courseSchema,
@@ -79,12 +82,16 @@ export function SlideCard({
         className="slide-mini"
         style={{ background: slide.background || undefined }}
       >
-        {slide.kind === "single-choice" ? <ListChecks /> : <FileText />}
+        {isQuestion(slide) ? <ListChecks /> : <FileText />}
       </span>
       <span>
         <strong>{slide.title}</strong>
         <small>
-          {slide.kind === "single-choice" ? "Single choice" : "Content slide"}
+          {slide.kind === "multi-select"
+            ? "Multi-select question"
+            : slide.kind === "single-choice"
+              ? "Single choice"
+              : "Content slide"}
         </small>
       </span>
       <ChevronRight />
@@ -161,9 +168,7 @@ export function CourseEditor({
   courseId: string;
   revision: number;
   onBack: () => void;
-  onSave: (
-    c: CourseData,
-  ) => Promise<{
+  onSave: (c: CourseData) => Promise<{
     ok: boolean;
     data?: CourseData;
     error?: string;
@@ -287,6 +292,28 @@ export function CourseEditor({
       ),
     }));
   }
+  function changeSlideKind(kind: Slide["kind"]) {
+    if (!slide) return;
+    const correctIds = (slide.correctIds ?? []).filter((id) =>
+      slide.options.some((option) => option.id === id),
+    );
+    const correctId = slide.options.some(
+      (option) => option.id === slide.correctId,
+    )
+      ? slide.correctId
+      : (correctIds[0] ?? slide.options[0].id);
+    patchSlide({
+      kind,
+      ...(kind === "multi-select"
+        ? {
+            correctIds: correctIds.length ? correctIds : [correctId],
+            scoringMode: slide.scoringMode ?? "all-or-nothing",
+          }
+        : kind === "single-choice"
+          ? { correctId }
+          : {}),
+    });
+  }
   function theme(p: Partial<CourseData["theme"]>) {
     change((c) => ({ ...c, theme: { ...c.theme, ...p } }));
   }
@@ -295,7 +322,9 @@ export function CourseEditor({
     setSlideId(course.levels.find((l) => l.id === id)?.slides[0]?.id || "");
   }
   function addSlide() {
-    const s = newSlide();
+    appendSlide(newSlide());
+  }
+  function appendSlide(s: Slide) {
     change((c) => ({
       ...c,
       levels: c.levels.map((l) =>
@@ -508,6 +537,13 @@ export function CourseEditor({
                     selected={slideId}
                     onSelect={setSlideId}
                   />
+                  <SecondaryButton
+                    disabled={level.slides.length >= 100}
+                    onClick={() => appendSlide(machineGuardingSlide())}
+                  >
+                    <Plus />
+                    Add machine-guarding sample
+                  </SecondaryButton>
                 </>
               )}
             </section>
@@ -666,13 +702,14 @@ export function CourseEditor({
                             label="Slide type"
                             value={slide.kind}
                             onChange={(e) =>
-                              patchSlide({
-                                kind: e.target.value as Slide["kind"],
-                              })
+                              changeSlideKind(e.target.value as Slide["kind"])
                             }
                           >
                             <option value="content">Content slide</option>
                             <option value="single-choice">Single choice</option>
+                            <option value="multi-select">
+                              Multi-Select Question
+                            </option>
                             <option value="recovery">Life recovery</option>
                           </SelectField>
                         </div>
@@ -729,8 +766,14 @@ export function CourseEditor({
                             }
                           />
                         )}
-                        {slide.kind === "single-choice" && (
-                          <PropertyPanel title="Single-choice interaction">
+                        {isQuestion(slide) && (
+                          <PropertyPanel
+                            title={
+                              slide.kind === "multi-select"
+                                ? "Multi-select interaction"
+                                : "Single-choice interaction"
+                            }
+                          >
                             <label className="check-field">
                               <input
                                 type="checkbox"
@@ -775,69 +818,26 @@ export function CourseEditor({
                               Demonstration answer key. Verify with a qualified
                               content owner before training use.
                             </p>
-                            {slide.options.map((o, i) => (
-                              <div key={o.id} className="option-edit">
+                            <QuestionOptionsEditor
+                              slide={slide}
+                              onChange={patchSlide}
+                              onError={onError}
+                            />
+                            {slide.kind === "multi-select" &&
+                              slide.scoringMode === "partial-credit" && (
                                 <TextField
-                                  label={`Option ${String.fromCharCode(65 + i)}`}
-                                  value={o.text}
+                                  label="Partial-credit feedback"
+                                  value={
+                                    slide.partialFeedback ??
+                                    "Some correct selections. Review your choices and try again."
+                                  }
                                   onChange={(e) =>
                                     patchSlide({
-                                      options: slide.options.map((x) =>
-                                        x.id === o.id
-                                          ? { ...x, text: e.target.value }
-                                          : x,
-                                      ),
+                                      partialFeedback: e.target.value,
                                     })
                                   }
                                 />
-                                <IconButton
-                                  label={`Remove option ${String.fromCharCode(65 + i)}`}
-                                  disabled={
-                                    slide.options.length <= 2 ||
-                                    o.id === slide.correctId
-                                  }
-                                  onClick={() =>
-                                    patchSlide({
-                                      options: slide.options.filter(
-                                        (x) => x.id !== o.id,
-                                      ),
-                                    })
-                                  }
-                                >
-                                  <Trash2 />
-                                </IconButton>
-                              </div>
-                            ))}
-                            <SecondaryButton
-                              disabled={slide.options.length >= 6}
-                              onClick={() =>
-                                patchSlide({
-                                  options: [
-                                    ...slide.options,
-                                    {
-                                      id: crypto.randomUUID(),
-                                      text: "New option",
-                                    },
-                                  ],
-                                })
-                              }
-                            >
-                              <Plus />
-                              Add answer option
-                            </SecondaryButton>
-                            <SelectField
-                              label="Demonstration correct answer"
-                              value={slide.correctId}
-                              onChange={(e) =>
-                                patchSlide({ correctId: e.target.value })
-                              }
-                            >
-                              {slide.options.map((o) => (
-                                <option key={o.id} value={o.id}>
-                                  {o.text}
-                                </option>
-                              ))}
-                            </SelectField>
+                              )}
                             <TextField
                               label="Correct feedback"
                               value={slide.correctFeedback}

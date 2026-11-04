@@ -2,7 +2,7 @@
 
 A working authoring studio with Phase 2 publishing management. Courses are independent projects; Daimler EHS is editable demonstration content, not a platform restriction.
 
-**Current milestone:** Phase 2 adds immutable export history, configurable scoring and artifact-bound LMS acceptance records. See the [acceptance report, screenshots and limitations](docs/phase2/acceptance-report.md). Historical user SCORM Cloud reports cover the earlier baseline; new Phase 2 packages require external retesting.
+**Current milestone:** Phase 3.1 adds multi-select questions, all-or-nothing/partial credit, option images and compact SCORM resume through the existing authoring and publishing systems. See the [implementation report, sample activity and acceptance evidence](docs/phase3-1/implementation-report.md). Phase 2 publishing history remains available; new artifacts require external LMS acceptance.
 
 ## Run locally
 
@@ -64,7 +64,7 @@ The browser test starts the development server if none is running. It creates, e
 
 ## Intentionally incomplete / future milestones
 
-Advanced freeform canvas, a full authored six-level course, multi-select, advanced multi-SCO sequencing and course maps are not implemented. Basic recovery, level stars and shared multi-level life are now implemented. There is no standalone learner authentication, standalone server-side learner-progress storage, hosted public course URL, collaboration, password recovery, arbitrary external media URLs, rich-text HTML editor or cloud asset storage. Raster images are embedded in course JSON for this MVP; large media libraries should use object storage. Preview does not enforce a pedagogical progression lock. The application does not imply content or corporate brand approval.
+Advanced freeform canvas, a full authored six-level course, sequencing activities, advanced multi-SCO sequencing and course maps are not implemented. Basic recovery, level stars and shared multi-level life are now implemented. There is no standalone learner authentication, standalone server-side learner-progress storage, hosted public course URL, collaboration, password recovery, arbitrary external media URLs, rich-text HTML editor or cloud asset storage. Raster images are embedded in course JSON for this MVP; large media libraries should use object storage. Preview does not enforce a pedagogical progression lock. The application does not imply content or corporate brand approval.
 
 ## Architecture and extension points
 
@@ -94,9 +94,9 @@ Open a course, save it, then use **Publishing**. Choose an individual level or f
 
 Regenerate the four seeded demo packages, two multi-level QA packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
 
-`npm test` runs 84 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 26 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+`npm test` runs 114 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 30 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
 
-SCORM 1.2 resume state is bounded to 4096 characters (publisher limit: 1024 slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents remain valid with legacy scoring defaults. Apply the additive Phase 2 database migration to create archive and acceptance tables; course JSON and revisions are preserved.
+SCORM 1.2 resume state is bounded to 4096 characters (1024-slide ceiling; multi-select state may require fewer slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents remain valid with legacy scoring defaults. Apply the additive Phase 2 database migration to create archive and acceptance tables; course JSON and revisions are preserved.
 
 Latest reliability fixes and the ready-to-import two-level QA packages are documented in [remaining SCORM checks](docs/scorm/remaining-checks.md). Completed registrations reopen in read-only review; failed saves warn before reload. The user supplied real SCORM Cloud Level 01 completion/passed/100% evidence; broader external LMS acceptance remains separate.
 
@@ -112,3 +112,11 @@ SCORM 2004 primary-objective reporting correction: [evidence, validation and ret
 `npm run export:demo` now archives the four saved Daimler EHS outputs and includes their artifact IDs in the generated reports. The two QA ZIPs remain standalone fixtures and do not insert course projects. `npm run test:migrations` checks the complete migration chain and immutability/evidence constraints in a disposable database. The ordinary migration does not require permission to create a database.
 
 Archives use PostgreSQL bytea and are retained until their course is explicitly deleted. Include them in backups and monitor storage growth. Acceptance evidence is plain text, not uploaded attachments or independently verified LMS integration. See the full [Phase 2 acceptance report](docs/phase2/acceptance-report.md) for remaining limits and the [prepared PR description](docs/phase2/pull-request.md).
+
+## Multi-select authoring (Phase 3.1)
+
+In Content & slides, choose **Multi-Select Question**. Add/edit/reorder answer options, mark one or more correct, choose **All or nothing** or **Partial credit**, and configure feedback, optional images/alternative text and mandatory/scored flags. Save, reopen and use Preview to test the same player used by both SCORM exports.
+
+Partial credit is `max(0, (correct selections - incorrect selections) / correct answers)`. Best credit is retained per attempt. Mandatory questions still need the exact answer set; a partial or wrong submission costs at most one configured life penalty per question per level attempt. Empty submission is disabled and ignored by the engine. Only submitted selections are saved for SCORM resume.
+
+Use **Add machine-guarding sample** to append an explicitly provisional demonstration. `npm run export:multi-select` produces its [canonical JSON and two standalone SCORM samples](deliverables/multi-select), with hashes, schema validation and credential-scan results. No existing course is seeded over, and no SQL migration is needed. Existing single-choice payloads keep resume v1; multi-select uses a compact, validated v2 extension. See the [full implementation report](docs/phase3-1/implementation-report.md) for acceptance tests, screenshots and unverified external LMS/device checks. No other Phase 3 module is implemented.

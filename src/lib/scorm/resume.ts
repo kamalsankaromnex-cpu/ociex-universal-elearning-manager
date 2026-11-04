@@ -33,8 +33,19 @@ export class ResumeStateSerializer {
     version: ScormVersion,
   ) {
     const s = gameStateSchema.parse(state);
+    const multi =
+      s.multi === undefined
+        ? undefined
+        : Object.entries(s.multi)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .flatMap(([key, value]) => {
+              const index = Number(key);
+              if (index >= slideCount)
+                throw new Error("Resume question outside package");
+              return [index, value.selection, value.credit];
+            });
     const text = JSON.stringify([
-      1,
+      multi === undefined ? 1 : 2,
       fingerprint,
       s.life,
       s.index,
@@ -45,6 +56,7 @@ export class ResumeStateSerializer {
       ),
       bits(s.completedLevels, levelCount),
       bits(s.stars, levelCount),
+      ...(multi === undefined ? [] : [multi]),
     ]);
     if (text.length > this.limit(version))
       throw new Error("Resume data exceeds SCORM limit");
@@ -62,14 +74,36 @@ export class ResumeStateSerializer {
     const p: unknown = JSON.parse(text);
     if (
       !Array.isArray(p) ||
-      p.length !== 12 ||
-      p[0] !== 1 ||
+      !((p[0] === 1 && p.length === 12) || (p[0] === 2 && p.length === 13)) ||
       p[1] !== fingerprint ||
       (p[5] !== 0 && p[5] !== 1)
     )
       throw new Error(
         "Resume data belongs to a different package or is invalid",
       );
+    let multi:
+      Record<string, { selection: number; credit: number }> | undefined;
+    if (p[0] === 2) {
+      const values = p[12];
+      if (
+        !Array.isArray(values) ||
+        values.length % 3 ||
+        values.length > slideCount * 3
+      )
+        throw new Error("Invalid multi-select resume data");
+      multi = {};
+      for (let i = 0; i < values.length; i += 3) {
+        const index = values[i];
+        if (
+          !Number.isInteger(index) ||
+          index < 0 ||
+          index >= slideCount ||
+          Object.hasOwn(multi, index)
+        )
+          throw new Error("Invalid multi-select resume question");
+        multi[index] = { selection: values[i + 1], credit: values[i + 2] };
+      }
+    }
     const state = gameStateSchema.parse({
       life: p[2],
       index: p[3],
@@ -81,6 +115,7 @@ export class ResumeStateSerializer {
       recovered: indices(p[9], slideCount),
       completedLevels: indices(p[10], levelCount),
       stars: indices(p[11], levelCount),
+      ...(multi === undefined ? {} : { multi }),
     });
     if (state.index >= slideCount) throw new Error("Invalid resume bookmark");
     return state;

@@ -1,6 +1,7 @@
 import type { CourseData } from "../course";
 import {
   assessment,
+  validateMultiResume,
   flatten,
   initialGame,
   type LearnerGameState,
@@ -77,6 +78,7 @@ export class ScormSessionManager {
           throw new Error(
             "LMS resume state is missing. Start a new attempt or contact your LMS administrator.",
           );
+        validateMultiResume(this.course, state);
         if (state.finished && !assessment(this.course, state).eligible)
           throw new Error(
             "Saved completion does not satisfy mandatory competency requirements. Contact your LMS administrator.",

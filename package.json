@@ -16,7 +16,8 @@
     "format": "prettier --write src scripts tests e2e prisma/seed.ts *.ts *.mjs *.json *.yaml",
     "admin:password": "node --env-file=.env --import tsx scripts/set-admin-password.ts",
     "export:demo": "node --env-file=.env --import tsx scripts/export-demo.ts",
-    "test:migrations": "node --env-file=.env scripts/check-publishing-migrations.mjs"
+    "test:migrations": "node --env-file=.env scripts/check-publishing-migrations.mjs",
+    "export:multi-select": "node --env-file=.env --import tsx scripts/export-multi-select.ts"
   },
   "dependencies": {
     "@fontsource/inter": "5.2.8",

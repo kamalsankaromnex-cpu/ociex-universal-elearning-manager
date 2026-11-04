@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- user-uploaded data URLs render without image optimization */
-import { useState, useEffect, useRef, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useId, type CSSProperties } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,11 +11,17 @@ import {
   Layers,
   Star,
 } from "lucide-react";
+import {
+  isQuestion,
+  normalizeSubmission,
+  selectionIds,
+  type SubmissionResult,
+} from "@/lib/interactions";
 import { type CourseData } from "@/lib/course";
 import {
   initialGame,
   visit,
-  answerQuestion,
+  submitQuestion,
   recoverLife,
   retryLevel,
   finishGame,
@@ -42,11 +48,16 @@ export function Learner({
   );
   const [game, setGame] = useState(() => visit(course, initialGame(), 0));
   const [answer, setAnswer] = useState(""),
-    [feedback, setFeedback] = useState<boolean | null>(null),
+    [feedback, setFeedback] = useState<SubmissionResult | null>(null),
+    [multiDraft, setMultiDraft] = useState<{
+      slideId: string;
+      ids: string[];
+    } | null>(null),
     [trackingError, setTrackingError] = useState(""),
     [ready, setReady] = useState(!tracking),
     [reviewing, setReviewing] = useState(false),
     [completionSaved, setCompletionSaved] = useState(false);
+  const instructionId = useId();
   const manager = useRef<ScormSessionManager | null>(null),
     latest = useRef(game);
   const pendingSave = useRef(false);
@@ -150,9 +161,16 @@ export function Learner({
       ? `url("${t.backgroundImage}")`
       : undefined,
   } as CSSProperties;
+  const multiAnswers =
+    slide?.kind === "multi-select"
+      ? multiDraft?.slideId === slide.id
+        ? multiDraft.ids
+        : selectionIds(slide, game.multi?.[index]?.selection ?? 0)
+      : [];
   function go(i: number) {
     setGame((g) => visit(course, g, i));
     setAnswer("");
+    setMultiDraft(null);
     setFeedback(null);
   }
   return (
@@ -242,6 +260,7 @@ export function Learner({
               onClick={() => {
                 setGame(visit(course, initialGame(), 0));
                 setAnswer("");
+                setMultiDraft(null);
                 setFeedback(null);
               }}
             >
@@ -268,7 +287,7 @@ export function Learner({
                 }
               >
                 <span className="lesson-eyebrow">
-                  {slide.kind === "single-choice"
+                  {isQuestion(slide)
                     ? "CHECK YOUR UNDERSTANDING"
                     : "EXPLORE & LEARN"}
                 </span>
@@ -281,56 +300,144 @@ export function Learner({
                     alt={slide.title}
                   />
                 )}{" "}
-                {slide.kind === "single-choice" && (
+                {isQuestion(slide) && (
                   <>
-                    <fieldset className="answer-options">
-                      <legend>Choose one answer</legend>
+                    {slide.kind === "multi-select" && (
+                      <p id={instructionId} className="multi-score">
+                        Select at least one answer, then submit.{" "}
+                        {slide.scoringMode === "partial-credit"
+                          ? "Partial credit: correct selections minus incorrect selections, divided by correct answers; minimum zero."
+                          : "All-or-nothing credit: select every correct answer and no incorrect answers."}{" "}
+                        {slide.mandatory !== false
+                          ? "An exact answer is required for completion."
+                          : "This question is optional for completion."}
+                      </p>
+                    )}
+                    <fieldset
+                      className="answer-options"
+                      aria-describedby={
+                        slide.kind === "multi-select"
+                          ? instructionId
+                          : undefined
+                      }
+                    >
+                      <legend>
+                        {slide.kind === "multi-select"
+                          ? "Choose one or more answers"
+                          : "Choose one answer"}
+                      </legend>
                       {slide.options.map((o, i) => (
                         <label
-                          className={answer === o.id ? "chosen" : ""}
+                          className={
+                            (
+                              slide.kind === "multi-select"
+                                ? multiAnswers.includes(o.id)
+                                : answer === o.id
+                            )
+                              ? "chosen"
+                              : ""
+                          }
                           key={o.id}
                         >
                           <input
-                            type="radio"
+                            type={
+                              slide.kind === "multi-select"
+                                ? "checkbox"
+                                : "radio"
+                            }
                             name="answer"
                             value={o.id}
-                            checked={answer === o.id}
+                            checked={
+                              slide.kind === "multi-select"
+                                ? multiAnswers.includes(o.id)
+                                : answer === o.id
+                            }
                             disabled={game.life === 0 || game.finished}
-                            onChange={() => {
-                              setAnswer(o.id);
+                            onChange={(event) => {
+                              if (slide.kind === "multi-select")
+                                setMultiDraft({
+                                  slideId: slide.id,
+                                  ids: event.target.checked
+                                    ? [...multiAnswers, o.id]
+                                    : multiAnswers.filter((id) => id !== o.id),
+                                });
+                              else setAnswer(o.id);
                               setFeedback(null);
                             }}
                           />
                           <span>{String.fromCharCode(65 + i)}</span>
                           {o.text}
+                          {o.image && (
+                            <img
+                              className="answer-image"
+                              src={o.image}
+                              alt={o.imageAlt ?? ""}
+                            />
+                          )}
                         </label>
                       ))}
                     </fieldset>
                     <button
                       className="learner-primary"
-                      disabled={!answer || game.life === 0 || game.finished}
+                      disabled={
+                        (slide.kind === "multi-select"
+                          ? !multiAnswers.length
+                          : !answer) ||
+                        game.life === 0 ||
+                        game.finished
+                      }
                       onClick={() => {
-                        setGame((g) => answerQuestion(course, g, answer));
-                        setFeedback(answer === slide.correctId);
+                        const result = normalizeSubmission(
+                          slide,
+                          slide.kind === "multi-select"
+                            ? multiAnswers
+                            : [answer],
+                        );
+                        if (!result) return;
+                        setGame((g) => submitQuestion(course, g, result));
+                        setFeedback(result);
                       }}
                     >
                       Submit answer <ArrowRight />
                     </button>
+                    {slide.kind === "multi-select" && game.multi?.[index] && (
+                      <p className="multi-score">
+                        Best earned credit for this question:{" "}
+                        <strong data-testid="multi-best-credit">
+                          {game.multi[index].credit / 100}%
+                        </strong>
+                        . Saved selections are restored after submission.
+                      </p>
+                    )}
                     {feedback !== null && (
                       <div role="status" className="feedback">
-                        {feedback ? <CheckCircle2 /> : <XCircle />}
+                        {feedback.correct ? <CheckCircle2 /> : <XCircle />}
                         <div>
                           <strong>
-                            {feedback
+                            {feedback.correct
                               ? "Correct answer"
-                              : "Let’s take another look"}
+                              : feedback.credit > 0
+                                ? "Partially correct"
+                                : "Let’s take another look"}
                           </strong>
                           <p>
-                            {feedback
+                            {feedback.correct
                               ? slide.correctFeedback
-                              : slide.incorrectFeedback}
+                              : feedback.credit > 0
+                                ? (slide.partialFeedback ??
+                                  slide.incorrectFeedback)
+                                : slide.incorrectFeedback}
                           </p>
-                          {!feedback && (
+                          {slide.kind === "multi-select" && (
+                            <p>
+                              Submission credit:{" "}
+                              <strong data-testid="multi-submission-credit">
+                                {feedback.credit / 100}%
+                              </strong>
+                              .
+                            </p>
+                          )}
+                          {!feedback.correct && (
                             <small>
                               One{" "}
                               {slide.lifePenalty ?? course.rules?.penalty ?? 25}
@@ -373,6 +480,7 @@ export function Learner({
                           ),
                         );
                         setAnswer("");
+                        setMultiDraft(null);
                         setFeedback(null);
                       }}
                     >
