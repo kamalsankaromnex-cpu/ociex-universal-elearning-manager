@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-04",
+  "target": "production build",
+  "passed": [
+    "Create/edit/save/reopen preserves slide, theme and font in PostgreSQL",
+    "Preview: 100→75 once, close/reopen resets to100, no API writes or database changes; slide override and learner colors/fonts isolated from admin",
+    "Editing A leaves B unchanged; B preview starts at100",
+    "Separate administrator cannot list, update or delete another administrator’s courses",
+    "Desktop/tablet/mobile layout and drawer navigation checked; logout revokes session; API responses do not contain configured credential values"
+  ],
+  "findings": [
+    {
+      "id": "F04",
+      "name": "Tab triggers reference missing tab panels",
+      "observed": true,
+      "controls": "radix-_r_9_-content-theme",
+      "hasPanel": false
+    },
+    {
+      "id": "F01",
+      "name": "Save response clears dirty state for later edits",
+      "observed": true,
+      "ui": "Edit made while save response is pending",
+      "stored": "Snapshot submitted to server",
+      "status": "All changes saved"
+    },
+    {
+      "id": "F02",
+      "name": "Page reload discards dirty content without warning",
+      "observed": true
+    },
+    {
+      "id": "F03",
+      "name": "Try again only dismisses the list error",
+      "observed": true,
+      "listRequestsBefore": 1,
+      "listRequestsAfter": 1
+    }
+  ],
+  "ui": [
+    {
+      "screen": "dashboard",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": "rgb(37, 99, 235)",
+      "surface": "rgb(255, 255, 255)",
+      "icons": 32
+    },
+    {
+      "screen": "slide-editor",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": "rgb(37, 99, 235)",
+      "surface": "rgb(255, 255, 255)",
+      "icons": 39
+    },
+    {
+      "screen": "theme-manager",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": "rgb(37, 99, 235)",
+      "surface": "rgb(255, 255, 255)",
+      "icons": 25
+    },
+    {
+      "screen": "header",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": "rgb(37, 99, 235)",
+      "surface": "rgb(255, 255, 255)",
+      "icons": 22
+    },
+    {
+      "screen": "theme-library",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": null,
+      "surface": "rgb(255, 255, 255)",
+      "icons": 16
+    },
+    {
+      "screen": "guide",
+      "primaryToken": "#2563eb",
+      "backgroundToken": "#f8fafc",
+      "button": "rgb(37, 99, 235)",
+      "surface": "rgb(255, 255, 255)",
+      "icons": 13
+    }
+  ],
+  "security": {
+    "sessionCookie": [
+      {
+        "httpOnly": true,
+        "secure": true,
+        "sameSite": "Strict"
+      }
+    ],
+    "/.env": 404,
+    "/.env.local": 404,
+    "/test-results/trace.zip": 404,
+    "/prisma/schema.prisma": 404,
+    "isolation": {
+      "foreignListCount": 0,
+      "foreignUpdateStatus": 409,
+      "foreignDeleteStatus": 404,
+      "anonymousListStatus": 401
+    },
+    "responseContainsCredentialValue": false
+  },
+  "cleanup": {
+    "temporaryCoursesRemaining": 0,
+    "originalCoursesUnchanged": true
+  }
+}

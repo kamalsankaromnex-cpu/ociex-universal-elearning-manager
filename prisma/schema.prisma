@@ -1,0 +1,35 @@
+generator client {
+ provider = "prisma-client-js"
+ engineType = "client"
+}
+datasource db {
+ provider = "postgresql"
+}
+model Admin {
+ id String @id @default(cuid())
+ email String @unique
+ passwordHash String
+ courses Course[]
+ sessions Session[]
+}
+model Session {
+ id String @id
+ adminId String
+ admin Admin @relation(fields:[adminId], references:[id], onDelete:Cascade)
+ expiresAt DateTime
+}
+model Course {
+ id String @id @default(cuid())
+ adminId String
+ admin Admin @relation(fields:[adminId],references:[id],onDelete:Cascade)
+ title String
+ data Json
+ revision Int @default(1)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+}
+model LoginAttempt {
+ key String @id
+ count Int @default(0)
+ resetAt DateTime
+}
