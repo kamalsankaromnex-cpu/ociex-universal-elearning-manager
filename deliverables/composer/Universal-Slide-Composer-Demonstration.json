@@ -1,0 +1,474 @@
+{
+  "title": "Universal Slide Composer — demonstration",
+  "description": "Layout, conditional feedback, multiple activities and completion acceptance fixture. Not approved training content.",
+  "theme": {
+    "background": "#F1F5F9",
+    "section": "#FFFFFF",
+    "header": "#123347",
+    "navigation": "#2563EB",
+    "text": "#0F172A",
+    "muted": "#64748B",
+    "primary": "#2563EB",
+    "buttonText": "#FFFFFF",
+    "border": "#CBD5E1",
+    "card": "#FFFFFF",
+    "icon": "#2563EB",
+    "life": "#16A34A",
+    "star": "#D97706",
+    "font": "Inter",
+    "fontSize": 16,
+    "radius": 16,
+    "logo": "",
+    "backgroundImage": ""
+  },
+  "header": {
+    "title": "Universal Slide Composer — demonstration",
+    "subtitle": "Interactive learning experience",
+    "showLife": true,
+    "showLogo": true
+  },
+  "levels": [
+    {
+      "id": "composer:demo-level",
+      "title": "Composer acceptance",
+      "slides": [
+        {
+          "id": "composer:intro",
+          "title": "Content-only orientation",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "intro:first",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "This slide has multiple content sections and no question. Reveal the details, then mark it complete."
+              },
+              {
+                "id": "intro:details",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": false,
+                "required": true,
+                "kind": "content",
+                "text": "These required details are revealed by an explicit button action."
+              },
+              {
+                "id": "intro:reveal",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "button",
+                "label": "Reveal details"
+              },
+              {
+                "id": "intro:last",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Content can appear before or after a control. There is no fixed question position."
+              },
+              {
+                "id": "intro:complete",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "button",
+                "label": "Mark slide complete"
+              }
+            ],
+            "rules": [
+              {
+                "id": "intro:show-rule",
+                "trigger": {
+                  "event": "activate",
+                  "sourceId": "intro:reveal"
+                },
+                "actions": [
+                  {
+                    "type": "show",
+                    "targetId": "intro:details"
+                  }
+                ]
+              },
+              {
+                "id": "intro:complete-rule",
+                "trigger": {
+                  "event": "activate",
+                  "sourceId": "intro:complete"
+                },
+                "actions": [
+                  {
+                    "type": "complete"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "manual",
+              "required": true,
+              "interactionIds": []
+            },
+            "navigation": "after-completion"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "composer:mixed",
+          "title": "Two independent activities",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "columns",
+              "regions": [
+                "left",
+                "right"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "mixed:first-correct",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:first",
+                "condition": "correct",
+                "text": "First activity feedback remains independent of the second.",
+                "presentation": "inline"
+              },
+              {
+                "id": "mixed:first",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "single-choice",
+                  "prompt": "First independent activity",
+                  "options": [
+                    {
+                      "id": "a",
+                      "text": "Answer A"
+                    },
+                    {
+                      "id": "b",
+                      "text": "Answer B"
+                    }
+                  ],
+                  "correctId": "a",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 25
+                }
+              },
+              {
+                "id": "mixed:after",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "This content follows the first interaction."
+              },
+              {
+                "id": "mixed:before",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "This content precedes the second interaction. Pass the first activity to reveal it."
+              },
+              {
+                "id": "mixed:second",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "multi-select",
+                  "prompt": "Second independent activity",
+                  "options": [
+                    {
+                      "id": "a",
+                      "text": "Demonstration choice A"
+                    },
+                    {
+                      "id": "b",
+                      "text": "Demonstration choice B"
+                    },
+                    {
+                      "id": "c",
+                      "text": "Demonstration distractor C"
+                    }
+                  ],
+                  "correctId": "a",
+                  "correctIds": [
+                    "a",
+                    "b"
+                  ],
+                  "scoringMode": "partial-credit",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 25
+                }
+              },
+              {
+                "id": "mixed:first-incorrect",
+                "version": 1,
+                "region": "left",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:first",
+                "condition": "incorrect",
+                "text": "Review the first activity and select A.",
+                "presentation": "popup"
+              },
+              {
+                "id": "mixed:first-retry",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:first",
+                "condition": "retry",
+                "text": "Retry feedback belongs only to the first activity.",
+                "presentation": "inline"
+              },
+              {
+                "id": "mixed:second-partial",
+                "version": 1,
+                "region": "right",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:second",
+                "condition": "partial",
+                "text": "You selected part of the second answer set. Select A and B for exact completion.",
+                "presentation": "overlay"
+              },
+              {
+                "id": "mixed:second-correct",
+                "version": 1,
+                "region": "right",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:second",
+                "condition": "correct",
+                "text": "Both second-activity answers are correct.",
+                "presentation": "popup"
+              },
+              {
+                "id": "mixed:second-incorrect",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:second",
+                "condition": "incorrect",
+                "text": "Review only the second activity.",
+                "presentation": "inline"
+              },
+              {
+                "id": "mixed:second-retry",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "mixed:second",
+                "condition": "retry",
+                "text": "Retry the second activity; prior credit and penalty remain.",
+                "presentation": "inline"
+              }
+            ],
+            "rules": [
+              {
+                "id": "mixed:reveal-second",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "mixed:first"
+                },
+                "actions": [
+                  {
+                    "type": "record-result",
+                    "targetId": "mixed:first"
+                  },
+                  {
+                    "type": "show",
+                    "targetId": "mixed:second"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "activities",
+              "required": true,
+              "interactionIds": []
+            },
+            "navigation": "after-completion"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "composer:optional",
+          "title": "Optional practice",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "optional:text",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "This slide is optional and its activity is unscored. It cannot change your course score."
+              },
+              {
+                "id": "optional:question",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "single-choice",
+                  "prompt": "Optional unscored practice",
+                  "options": [
+                    {
+                      "id": "a",
+                      "text": "Answer A"
+                    },
+                    {
+                      "id": "b",
+                      "text": "Answer B"
+                    }
+                  ],
+                  "correctId": "a",
+                  "mandatory": false,
+                  "scored": false,
+                  "lifePenalty": 0
+                }
+              },
+              {
+                "id": "optional:feedback",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "optional:question",
+                "condition": "incorrect",
+                "text": "Optional practice feedback.",
+                "presentation": "inline"
+              }
+            ],
+            "rules": [],
+            "completion": {
+              "mode": "view",
+              "required": false,
+              "interactionIds": []
+            },
+            "navigation": "free"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        }
+      ]
+    }
+  ]
+}

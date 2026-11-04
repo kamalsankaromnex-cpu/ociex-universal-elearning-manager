@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- user-uploaded data URLs render without image optimization */
+import { useId } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as RadixTabs from "@radix-ui/react-tabs";
 import { Button } from "./button";
@@ -18,6 +19,7 @@ import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
+  CSSProperties,
   SelectHTMLAttributes,
 } from "react";
 export const PrimaryButton = Button;
@@ -57,10 +59,13 @@ export function SelectField({
   children,
   ...p
 }: SelectHTMLAttributes<HTMLSelectElement> & { label: string }) {
+  const labelId = useId();
   return (
     <label className="field">
-      <span>{label}</span>
-      <select {...p}>{children}</select>
+      <span id={labelId}>{label}</span>
+      <select aria-labelledby={p["aria-label"] ? undefined : labelId} {...p}>
+        {children}
+      </select>
     </label>
   );
 }
@@ -187,18 +192,33 @@ export function Modal({
   title,
   description,
   children,
+  contentClassName,
+  contentStyle,
+  onCloseFocus,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   title: string;
   description: string;
   children: ReactNode;
+  contentClassName?: string;
+  contentStyle?: CSSProperties;
+  onCloseFocus?: () => void;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="overlay" />
-        <Dialog.Content className="modal">
+        <Dialog.Content
+          className={cn("modal", contentClassName)}
+          style={contentStyle}
+          onCloseAutoFocus={(event) => {
+            if (onCloseFocus) {
+              event.preventDefault();
+              onCloseFocus();
+            }
+          }}
+        >
           <Dialog.Title>{title}</Dialog.Title>
           <Dialog.Description>{description}</Dialog.Description>
           {children}

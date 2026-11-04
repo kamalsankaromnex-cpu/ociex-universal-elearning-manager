@@ -1,114 +1,114 @@
 [
   {
     "file": "Daimler-EHS-Level-01-SCORM-1.2.zip",
-    "exportId": "cmw26dj5r0000uwo5aow31s51",
+    "exportId": "cmw2bgt9w00009wo5pjfu5jwt",
     "publisher": "Coursecraft",
     "format": "SCORM 1.2",
     "revision": 1,
     "scope": "level",
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
-    "fingerprint": "621b60c37e4fec7bd49b87625d81934244d231608ec0632f21e14018b0088061",
-    "exportedAt": "2026-11-04T13:51:26.005Z",
+    "fingerprint": "d8966eb8d36cfcb733ad36895caaf0a0cd331bf2250f3cfc909614b7e20b6ce6",
+    "exportedAt": "2026-11-04T16:13:57.100Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 299062,
+    "bytes": 327228,
     "packagedFiles": 16
   },
   {
     "file": "Daimler-EHS-Level-01-SCORM-2004-4th.zip",
-    "exportId": "cmw26dj7l0001uwo5g1hoqif1",
+    "exportId": "cmw2bgtbu00019wo56kr9tl5j",
     "publisher": "Coursecraft",
     "format": "SCORM 2004 4th Edition",
     "revision": 1,
     "scope": "level",
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
-    "fingerprint": "90eff451f252656267682c343988b3927aa99cb7ee14c49b9ca356412bc759a7",
-    "exportedAt": "2026-11-04T13:51:26.289Z",
+    "fingerprint": "ab45be5dc4c3e0a3596e5cf6f940635be19f7d1c7b96c9a6fb930d0f510b9b9d",
+    "exportedAt": "2026-11-04T16:13:57.450Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 313402,
+    "bytes": 341575,
     "packagedFiles": 29
   },
   {
     "file": "Daimler-EHS-Full-Course-SCORM-1.2.zip",
-    "exportId": "cmw26dj930002uwo5gezbflsa",
+    "exportId": "cmw2bgtdt00029wo5ibdhntqu",
     "publisher": "Coursecraft",
     "format": "SCORM 1.2",
     "revision": 1,
     "scope": "course",
     "level": null,
     "title": "Daimler EHS",
-    "fingerprint": "42bee1f8b508c47255c8e62fe9b2f15e476af8a37e37bd0adbbbc2dc87b2f8cc",
-    "exportedAt": "2026-11-04T13:51:26.351Z",
+    "fingerprint": "f65975d60afd345fa471b6a74adac211a0f3d531bc1bdbcedcf4d1008159d42f",
+    "exportedAt": "2026-11-04T16:13:57.519Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 298998,
+    "bytes": 327175,
     "packagedFiles": 16
   },
   {
     "file": "Daimler-EHS-Full-Course-SCORM-2004-4th.zip",
-    "exportId": "cmw26djak0003uwo5jfbpnbte",
+    "exportId": "cmw2bgtfm00039wo53c0ng1t2",
     "publisher": "Coursecraft",
     "format": "SCORM 2004 4th Edition",
     "revision": 1,
     "scope": "course",
     "level": null,
     "title": "Daimler EHS",
-    "fingerprint": "559c5a5c8e7251f948434b090a298e9dccfbb7a468537de62d3e239465dba6d5",
-    "exportedAt": "2026-11-04T13:51:26.403Z",
+    "fingerprint": "3b8c98e54140e3217ec7b1f44cac338869e51adb4f4f0ed4c17d18844cf71cea",
+    "exportedAt": "2026-11-04T16:13:57.586Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 313344,
+    "bytes": 341513,
     "packagedFiles": 29
   },
   {
@@ -119,23 +119,23 @@
     "scope": "course",
     "level": null,
     "title": "SCORM Tracking QA — not training content",
-    "fingerprint": "a3e558bd455377001bd378ecd25cdc8df82f8026e6dcc97c404c23cdb5154e69",
-    "exportedAt": "2026-11-04T13:51:26.457Z",
+    "fingerprint": "490a43f8fc27e1f24b02b2ef8707ecda1448e1d9bf1af178b91a3c3d142cc78c",
+    "exportedAt": "2026-11-04T16:13:57.650Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 299055,
+    "bytes": 327227,
     "packagedFiles": 16
   },
   {
@@ -146,23 +146,23 @@
     "scope": "course",
     "level": null,
     "title": "SCORM Tracking QA — not training content",
-    "fingerprint": "230ff721baf560ce4f02421af85dabaa95bb965cc9af2822017d05620cad7983",
-    "exportedAt": "2026-11-04T13:51:26.494Z",
+    "fingerprint": "327bbf2b12f9c533760a909285b1e33b5507e29b8ccff1e2d73d7be87e9d8e7a",
+    "exportedAt": "2026-11-04T16:13:57.705Z",
     "singleSco": true,
-    "publisherVersion": "phase3.1",
+    "publisherVersion": "composer.1",
     "scoringPolicy": {
       "passingScore": 80,
       "optional": "include",
       "unanswered": "zero",
       "unscored": "excluded",
-      "answerCredit": "best-correct-in-attempt",
+      "answerCredit": "best-credit-in-level-attempt",
       "completion": "all-visited-mandatory-correct-life-positive"
     },
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 313400,
+    "bytes": 341575,
     "packagedFiles": 29
   }
 ]

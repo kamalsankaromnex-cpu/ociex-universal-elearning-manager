@@ -17,6 +17,8 @@ import {
   selectionIds,
   type SubmissionResult,
 } from "@/lib/interactions";
+import { ComposerSlide } from "./composer-slide";
+import { canNavigate } from "@/lib/composer/runtime";
 import { type CourseData } from "@/lib/course";
 import {
   initialGame,
@@ -46,6 +48,8 @@ export function Learner({
   const slides = course.levels.flatMap((l) =>
     l.slides.map((s) => ({ ...s, levelTitle: l.title })),
   );
+  const [previewEpoch, setPreviewEpoch] = useState(0);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const [game, setGame] = useState(() => visit(course, initialGame(), 0));
   const [answer, setAnswer] = useState(""),
     [feedback, setFeedback] = useState<SubmissionResult | null>(null),
@@ -63,6 +67,9 @@ export function Learner({
   const pendingSave = useRef(false);
   latest.current = game;
   const index = game.index;
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [index]);
   function persist() {
     if (!manager.current) return;
     pendingSave.current = true;
@@ -245,6 +252,7 @@ export function Learner({
                   <button
                     key={s.id}
                     className={i === index ? "selected" : ""}
+                    disabled={!canNavigate(course, game, i)}
                     onClick={() => go(i)}
                   >
                     <span>{i + 1}</span>
@@ -258,6 +266,7 @@ export function Learner({
             <button
               className="reset"
               onClick={() => {
+                setPreviewEpoch((n) => n + 1);
                 setGame(visit(course, initialGame(), 0));
                 setAnswer("");
                 setMultiDraft(null);
@@ -291,9 +300,20 @@ export function Learner({
                     ? "CHECK YOUR UNDERSTANDING"
                     : "EXPLORE & LEARN"}
                 </span>
-                <h1>{slide.title}</h1>
-                <p>{slide.text}</p>
-                {slide.image && (
+                <h1 ref={headingRef} tabIndex={-1}>
+                  {slide.title}
+                </h1>
+                {slide.composition && (
+                  <ComposerSlide
+                    key={`${slide.id}-${previewEpoch}-${game.attempts}`}
+                    course={course}
+                    slide={slide}
+                    state={game}
+                    onChange={setGame}
+                  />
+                )}
+                {!slide.composition && <p>{slide.text}</p>}
+                {!slide.composition && slide.image && (
                   <img
                     className="lesson-image"
                     src={slide.image}
@@ -490,7 +510,12 @@ export function Learner({
                 )}
               </article>
               <div className="learner-pagination">
-                <button disabled={index === 0} onClick={() => go(index - 1)}>
+                <button
+                  disabled={
+                    index === 0 || !canNavigate(course, game, index - 1)
+                  }
+                  onClick={() => go(index - 1)}
+                >
                   <ArrowLeft />
                   Previous
                 </button>
@@ -498,7 +523,10 @@ export function Learner({
                   {Math.round(((index + 1) / slides.length) * 100)}% explored
                 </span>
                 <button
-                  disabled={index === slides.length - 1}
+                  disabled={
+                    index === slides.length - 1 ||
+                    !canNavigate(course, game, index + 1)
+                  }
                   onClick={() => go(index + 1)}
                 >
                   Continue
@@ -529,8 +557,9 @@ export function Learner({
             </button>
             {!assessment(course, game).eligible && (
               <p>
-                Visit all slides and pass every mandatory question before
-                completing.
+                {course.levels.some((l) => l.slides.some((s) => s.composition))
+                  ? "Complete required slides, mandatory activities and manual completion controls before finishing."
+                  : "Visit all slides and pass every mandatory question before completing."}
               </p>
             )}
             {game.finished && (

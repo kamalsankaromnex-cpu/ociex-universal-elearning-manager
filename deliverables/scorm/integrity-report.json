@@ -3,8 +3,8 @@
   "packages": [
     {
       "file": "Daimler-EHS-Level-01-SCORM-1.2.zip",
-      "exportId": "cmw26dj5r0000uwo5aow31s51",
-      "sha256": "3dbc8d57c5d612b3392a23c0f473d419376e565a243b13dff4b76a8e1aab9c8d",
+      "exportId": "cmw2bgt9w00009wo5pjfu5jwt",
+      "sha256": "034f8237faf24aa6974a3b9e96dfaac0667b8bd277a595f2d3b22ddfdf270cbf",
       "entries": 16,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -15,24 +15,24 @@
         "scope": "level",
         "level": "Level 01 — EHS Vision & Strategy",
         "title": "Daimler EHS",
-        "fingerprint": "621b60c37e4fec7bd49b87625d81934244d231608ec0632f21e14018b0088061",
-        "exportedAt": "2026-11-04T13:51:26.005Z",
+        "fingerprint": "d8966eb8d36cfcb733ad36895caaf0a0cd331bf2250f3cfc909614b7e20b6ce6",
+        "exportedAt": "2026-11-04T16:13:57.100Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }
     },
     {
       "file": "Daimler-EHS-Level-01-SCORM-2004-4th.zip",
-      "exportId": "cmw26dj7l0001uwo5g1hoqif1",
-      "sha256": "a36f90df18f97f931fdf1553d710a26287ead9b2c3c2704df6ec72e1fb07a810",
+      "exportId": "cmw2bgtbu00019wo56kr9tl5j",
+      "sha256": "452ac06ca71cfa86bb781a9d417e65fd34bc09c07ec1f9656e9195ce977eabb0",
       "entries": 29,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -43,24 +43,24 @@
         "scope": "level",
         "level": "Level 01 — EHS Vision & Strategy",
         "title": "Daimler EHS",
-        "fingerprint": "90eff451f252656267682c343988b3927aa99cb7ee14c49b9ca356412bc759a7",
-        "exportedAt": "2026-11-04T13:51:26.289Z",
+        "fingerprint": "ab45be5dc4c3e0a3596e5cf6f940635be19f7d1c7b96c9a6fb930d0f510b9b9d",
+        "exportedAt": "2026-11-04T16:13:57.450Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }
     },
     {
       "file": "Daimler-EHS-Full-Course-SCORM-1.2.zip",
-      "exportId": "cmw26dj930002uwo5gezbflsa",
-      "sha256": "7bd3a7efe494ef9ed42b1b1ad30ec6a3c9e3788e29f962eb40f7bde2cf51dfe0",
+      "exportId": "cmw2bgtdt00029wo5ibdhntqu",
+      "sha256": "d0eff3a22731175125868f47f6c405afe9859f61d955c118c436c81d98955db5",
       "entries": 16,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -71,24 +71,24 @@
         "scope": "course",
         "level": null,
         "title": "Daimler EHS",
-        "fingerprint": "42bee1f8b508c47255c8e62fe9b2f15e476af8a37e37bd0adbbbc2dc87b2f8cc",
-        "exportedAt": "2026-11-04T13:51:26.351Z",
+        "fingerprint": "f65975d60afd345fa471b6a74adac211a0f3d531bc1bdbcedcf4d1008159d42f",
+        "exportedAt": "2026-11-04T16:13:57.519Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }
     },
     {
       "file": "Daimler-EHS-Full-Course-SCORM-2004-4th.zip",
-      "exportId": "cmw26djak0003uwo5jfbpnbte",
-      "sha256": "e2dd86757b0c6401fe69d667e2a26fc4371cb14d60d8d78f386f4887a8453c04",
+      "exportId": "cmw2bgtfm00039wo53c0ng1t2",
+      "sha256": "b74f8c8d0db71dba3c988f6d991d6047a906be1bdff09eff2edab24549f04ebf",
       "entries": 29,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -99,23 +99,23 @@
         "scope": "course",
         "level": null,
         "title": "Daimler EHS",
-        "fingerprint": "559c5a5c8e7251f948434b090a298e9dccfbb7a468537de62d3e239465dba6d5",
-        "exportedAt": "2026-11-04T13:51:26.403Z",
+        "fingerprint": "3b8c98e54140e3217ec7b1f44cac338869e51adb4f4f0ed4c17d18844cf71cea",
+        "exportedAt": "2026-11-04T16:13:57.586Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }
     },
     {
       "file": "SCORM-Tracking-QA-SCORM-1.2.zip",
-      "sha256": "8822201db4f585b4432532386cc7abfe23d99efac1f63aeebb09cdc7c4120bdd",
+      "sha256": "189d7f5f19b6393060f1cd091a9eb69149d991490b926da7229be2d28d92e518",
       "entries": 16,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -126,23 +126,23 @@
         "scope": "course",
         "level": null,
         "title": "SCORM Tracking QA — not training content",
-        "fingerprint": "a3e558bd455377001bd378ecd25cdc8df82f8026e6dcc97c404c23cdb5154e69",
-        "exportedAt": "2026-11-04T13:51:26.457Z",
+        "fingerprint": "490a43f8fc27e1f24b02b2ef8707ecda1448e1d9bf1af178b91a3c3d142cc78c",
+        "exportedAt": "2026-11-04T16:13:57.650Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }
     },
     {
       "file": "SCORM-Tracking-QA-SCORM-2004-4th.zip",
-      "sha256": "ffdd02cfb934656ca054a6e990fd7a89ce694ed453e2c4e95420c6dec5422f4f",
+      "sha256": "c9c099e1e4fe70096edc92556588242602d7b7c7833810f983cc845d4803f674",
       "entries": 29,
       "secretValueMatches": 0,
       "manifestAtRoot": true,
@@ -153,16 +153,16 @@
         "scope": "course",
         "level": null,
         "title": "SCORM Tracking QA — not training content",
-        "fingerprint": "230ff721baf560ce4f02421af85dabaa95bb965cc9af2822017d05620cad7983",
-        "exportedAt": "2026-11-04T13:51:26.494Z",
+        "fingerprint": "327bbf2b12f9c533760a909285b1e33b5507e29b8ccff1e2d73d7be87e9d8e7a",
+        "exportedAt": "2026-11-04T16:13:57.705Z",
         "singleSco": true,
-        "publisherVersion": "phase3.1",
+        "publisherVersion": "composer.1",
         "scoringPolicy": {
           "passingScore": 80,
           "optional": "include",
           "unanswered": "zero",
           "unscored": "excluded",
-          "answerCredit": "best-correct-in-attempt",
+          "answerCredit": "best-credit-in-level-attempt",
           "completion": "all-visited-mandatory-correct-life-positive"
         }
       }

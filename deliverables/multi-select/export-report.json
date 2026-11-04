@@ -1,8 +1,8 @@
 [
   {
     "file": "Machine-Guarding-Multi-Select-SCORM-1.2.zip",
-    "sha256": "f1e56bd2a2ef028f87d719467f74cd5a76f0d2fc4ac9d2bc86eb00b59a4a51ec",
-    "bytes": 299000,
+    "sha256": "e000e4e98c2da1e290d0b0cd5c7575ab8ca3821fe02d5ae253002aa69a3131bc",
+    "bytes": 327172,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 1.2",
@@ -10,16 +10,16 @@
       "scope": "course",
       "level": null,
       "title": "Machine guarding — multi-select demonstration",
-      "fingerprint": "756d0e6a1fdaab3a90d8b242d2e956147d5aad3e69f023cd29d861b356b51fa3",
-      "exportedAt": "2026-11-04T13:51:25.077Z",
+      "fingerprint": "7b3ab7723f269b20e58f68dca59c101bcfea852ad40fa1f5c55fd777452f42db",
+      "exportedAt": "2026-11-04T16:13:55.954Z",
       "singleSco": true,
-      "publisherVersion": "phase3.1",
+      "publisherVersion": "composer.1",
       "scoringPolicy": {
         "passingScore": 80,
         "optional": "include",
         "unanswered": "zero",
         "unscored": "excluded",
-        "answerCredit": "best-correct-in-attempt",
+        "answerCredit": "best-credit-in-level-attempt",
         "completion": "all-visited-mandatory-correct-life-positive"
       }
     },
@@ -40,8 +40,8 @@
   },
   {
     "file": "Machine-Guarding-Multi-Select-SCORM-2004-4th.zip",
-    "sha256": "9678a2e54889dc2b77c78a49b8b77a7e7796e50120622b725e1ca733ec93df07",
-    "bytes": 313331,
+    "sha256": "e3c0a67fedabe8235d6adee09ad2796b0b695170a5b8a231e43b7c07073be8c4",
+    "bytes": 341517,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 2004 4th Edition",
@@ -49,16 +49,16 @@
       "scope": "course",
       "level": null,
       "title": "Machine guarding — multi-select demonstration",
-      "fingerprint": "2c6235bddc304ada2f05412a4e100f7bb55539e6a7250da1efedddf31344a0b8",
-      "exportedAt": "2026-11-04T13:51:25.356Z",
+      "fingerprint": "3804509b54c61b10d9143daff4698072ab1b07c9b3fd4d4b8f136aff76137f86",
+      "exportedAt": "2026-11-04T16:13:56.282Z",
       "singleSco": true,
-      "publisherVersion": "phase3.1",
+      "publisherVersion": "composer.1",
       "scoringPolicy": {
         "passingScore": 80,
         "optional": "include",
         "unanswered": "zero",
         "unscored": "excluded",
-        "answerCredit": "best-correct-in-attempt",
+        "answerCredit": "best-credit-in-level-attempt",
         "completion": "all-visited-mandatory-correct-life-positive"
       }
     },

@@ -1,6 +1,8 @@
+import { composerContext, compositionMedia } from "../composer/model";
+import { emptyComposer } from "../composer/state";
 import { isQuestion } from "../interactions";
 import { courseSchema, type CourseData } from "../course";
-import { flatten, initialGame } from "../game";
+import { flatten, initialGame, allQuestions } from "../game";
 import { ResumeStateSerializer } from "../scorm/resume";
 import type { ExportRequest, ValidationResult } from "./types";
 export class ExportValidator {
@@ -38,6 +40,7 @@ export class ExportValidator {
       ...flatten(course).flatMap((s) => [
         s.image,
         ...s.options.map((o) => o.image ?? ""),
+        ...(s.composition ? compositionMedia(s.composition) : []),
       ]),
     ])
       if (value && !value.startsWith("data:image/"))
@@ -63,6 +66,7 @@ export class ExportValidator {
       ...flatten(course).flatMap((s) => [
         s.image,
         ...s.options.map((o) => o.image ?? ""),
+        ...(s.composition ? compositionMedia(s.composition) : []),
       ]),
     ].filter(Boolean)) {
       const match =
@@ -88,9 +92,8 @@ export class ExportValidator {
         );
     }
     if (
-      !flatten(course).some(
-        (s) =>
-          isQuestion(s) &&
+      !allQuestions(course).some(
+        ({ question: s }) =>
           s.scored !== false &&
           (s.mandatory !== false ||
             course.rules?.optionalScoring !== "exclude"),
@@ -111,6 +114,17 @@ export class ExportValidator {
         slide.incorrectFeedback,
         slide.partialFeedback ?? "",
         ...slide.options.map((o) => o.imageAlt ?? ""),
+        ...(slide.composition?.blocks.flatMap((b) =>
+          b.kind === "content" || b.kind === "feedback"
+            ? [b.text]
+            : b.kind === "interaction"
+              ? [b.question.prompt, ...b.question.options.map((o) => o.text)]
+              : b.kind === "media"
+                ? [b.alt]
+                : b.kind === "button"
+                  ? [b.label]
+                  : [],
+        ) ?? []),
       ])
         if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(text))
           errors.push(
@@ -122,6 +136,44 @@ export class ExportValidator {
       ResumeStateSerializer.serialize(
         {
           ...initialGame(),
+          ...(flatten(course).some((s) => s.composition)
+            ? {
+                composer: {
+                  ...emptyComposer(),
+                  answers: Object.fromEntries(
+                    flatten(course).flatMap(
+                      (s) =>
+                        s.composition?.blocks.flatMap((b) =>
+                          b.kind === "interaction"
+                            ? [
+                                [
+                                  b.id,
+                                  {
+                                    selection:
+                                      (1 << b.question.options.length) - 1,
+                                    credit: 10000,
+                                    passed: true,
+                                    penalized: true,
+                                    last: "correct" as const,
+                                  },
+                                ],
+                              ]
+                            : [],
+                        ) ?? [],
+                    ),
+                  ),
+                  visibility: Object.fromEntries(
+                    composerContext(course).blocks.map((id) => [id, true]),
+                  ),
+                  seen: composerContext(course).blocks,
+                  manual: flatten(course)
+                    .filter((s) => s.composition)
+                    .map((s) => s.id),
+                  feedback: composerContext(course).blocks,
+                  recovered: composerContext(course).blocks,
+                },
+              }
+            : {}),
           visited: full,
           passed: full,
           penalized: full,
@@ -152,6 +204,7 @@ export class ExportValidator {
         count,
         levels.length,
         request.version,
+        composerContext(course),
       );
     } catch (e) {
       errors.push((e as Error).message);

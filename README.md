@@ -2,7 +2,7 @@
 
 A working authoring studio with Phase 2 publishing management. Courses are independent projects; Daimler EHS is editable demonstration content, not a platform restriction.
 
-**Current milestone:** Phase 3.1 adds multi-select questions, all-or-nothing/partial credit, option images and compact SCORM resume through the existing authoring and publishing systems. See the [implementation report, sample activity and acceptance evidence](docs/phase3-1/implementation-report.md). Phase 2 publishing history remains available; new artifacts require external LMS acceptance.
+**Current milestone:** Universal Slide Composer adds ordered versioned blocks, multiple independent interactions/feedback, regions/layers and configurable completion/navigation through the existing player and game engine. See the [inspection, implementation report and limitations](docs/composer/implementation-report.md). Existing courses remain supported without a SQL migration.
 
 ## Run locally
 
@@ -94,7 +94,7 @@ Open a course, save it, then use **Publishing**. Choose an individual level or f
 
 Regenerate the four seeded demo packages, two multi-level QA packages and XSD report with `npm run export:demo`. Packages are in [deliverables/scorm](deliverables/scorm). The seeded full course currently has one level; tests separately exercise two-level shared life, stars, recovery and retry. Deploy packaging with the source player/CSS/vendor directory and installed fonts/esbuild available, not only the Next build output. No LMS account is needed to generate packages.
 
-`npm test` runs 114 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 30 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
+`npm test` runs 142 unit/integration checks. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` runs 36 browser checks, including an independent HTTP server that serves only ZIP contents with simulated LMS APIs. **These are not real SCORM Cloud launches.** See [schema/runtime review and limitations](docs/scorm/phase-reviews.md) and [SCORM Cloud instructions / Cornerstone checklist](docs/scorm/lms-acceptance.md).
 
 SCORM 1.2 resume state is bounded to 4096 characters (1024-slide ceiling; multi-select state may require fewer slides); 2004 uses the 64000-character limit. Missing API and failed writes are explicit, and all assets use local relative paths. Completed learning and mandatory competencies are tracked separately from life. Previously saved course documents remain valid with legacy scoring defaults. Apply the additive Phase 2 database migration to create archive and acceptance tables; course JSON and revisions are preserved.
 
@@ -120,3 +120,11 @@ In Content & slides, choose **Multi-Select Question**. Add/edit/reorder answer o
 Partial credit is `max(0, (correct selections - incorrect selections) / correct answers)`. Best credit is retained per attempt. Mandatory questions still need the exact answer set; a partial or wrong submission costs at most one configured life penalty per question per level attempt. Empty submission is disabled and ignored by the engine. Only submitted selections are saved for SCORM resume.
 
 Use **Add machine-guarding sample** to append an explicitly provisional demonstration. `npm run export:multi-select` produces its [canonical JSON and two standalone SCORM samples](deliverables/multi-select), with hashes, schema validation and credential-scan results. No existing course is seeded over, and no SQL migration is needed. Existing single-choice payloads keep resume v1; multi-select uses a compact, validated v2 extension. See the [full implementation report](docs/phase3-1/implementation-report.md) for acceptance tests, screenshots and unverified external LMS/device checks. No other Phase 3 module is implemented.
+
+## Universal Slide Composer
+
+Choose Universal Slide Composer in the slide-type selector to convert a legacy slide explicitly in the editor draft. Add/reorder content, media, questions, feedback, buttons and recovery blocks; assign layout regions; attach each feedback block to its own activity/condition. Configure required/optional slides, completion controls and forward-navigation gates. Save/reopen, preview and publish use the same model and renderer.
+
+The rule system is a bounded event/action allowlist with validated references and reachability. It cannot run scripts, recursively emit events or bypass mandatory competencies. The game engine owns all scores and life. Existing resume v1/v2 is preserved; composers use compact v3 within the same SCORM limits. Existing saved projects are not automatically rewritten, and archived packages remain immutable.
+
+Run `npm run export:composer` for the [composer demonstration JSON, SCORM 1.2/2004 ZIPs and reports](deliverables/composer). See [the implementation report](docs/composer/implementation-report.md) for tests, failed-test corrections and deferred features. New artifacts require external LMS acceptance; no animation timeline or freeform canvas is included.

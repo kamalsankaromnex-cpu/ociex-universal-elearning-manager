@@ -1,15 +1,9 @@
 import { z } from "zod";
-const media = z
-  .string()
-  .max(500000)
-  .refine(
-    (v) =>
-      !v ||
-      /^assets\/media\/[a-f0-9]{64}\.(png|jpeg|webp|gif)$/.test(v) ||
-      /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v),
-    "Upload a supported raster image",
-  );
-const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+import { media, color } from "./slide-primitives";
+import {
+  compositionSchema,
+  validateCourseCompositions,
+} from "./composer/schema";
 export const themeSchema = z.object({
   background: color,
   section: color,
@@ -34,10 +28,17 @@ export const slideSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(1).max(200),
-    kind: z.enum(["content", "single-choice", "multi-select", "recovery"]),
-    text: z.string().max(10000),
-    image: media,
-    background: z.union([color, z.literal("")]),
+    kind: z.enum([
+      "content",
+      "single-choice",
+      "multi-select",
+      "recovery",
+      "composed",
+    ]),
+    text: z.string().max(10000).default(""),
+    image: media.default(""),
+    background: z.union([color, z.literal("")]).default(""),
+    composition: compositionSchema.optional(),
     options: z
       .array(
         z
@@ -52,21 +53,27 @@ export const slideSchema = z
           }),
       )
       .min(2)
-      .max(6),
+      .max(6)
+      .default([
+        { id: "a", text: "Answer A" },
+        { id: "b", text: "Answer B" },
+      ]),
     mandatory: z.boolean().optional(),
     scored: z.boolean().optional(),
     lifePenalty: z.number().int().min(0).max(100).optional(),
     lifeRecovery: z.number().int().min(0).max(100).optional(),
-    correctId: z.string(),
+    correctId: z.string().default("a"),
     correctIds: z.array(z.string().min(1)).min(1).max(6).optional(),
     scoringMode: z.enum(["all-or-nothing", "partial-credit"]).optional(),
     partialFeedback: z.string().min(1).max(1000).optional(),
-    correctFeedback: z.string().min(1).max(1000),
-    incorrectFeedback: z.string().min(1).max(1000),
+    correctFeedback: z.string().min(1).max(1000).default("Correct"),
+    incorrectFeedback: z.string().min(1).max(1000).default("Try again"),
   })
   .refine(
     (s) =>
-      s.kind === "multi-select" || s.options.some((o) => o.id === s.correctId),
+      s.kind === "multi-select" ||
+      s.kind === "composed" ||
+      s.options.some((o) => o.id === s.correctId),
     {
       message: "Choose an existing correct option",
     },
@@ -85,7 +92,10 @@ export const slideSchema = z
       message:
         "Select at least one existing correct answer; correct answers must be unique",
     },
-  );
+  )
+  .refine((s) => s.kind !== "composed" || !!s.composition, {
+    message: "A composed slide needs a versioned composition",
+  });
 export const courseSchema = z
   .object({
     title: z.string().trim().min(1).max(160),
@@ -117,6 +127,8 @@ export const courseSchema = z
       .max(100),
   })
   .superRefine((c, ctx) => {
+    for (const message of validateCourseCompositions(c))
+      ctx.addIssue({ code: "custom", message });
     const ids = c.levels.flatMap((l) => [l.id, ...l.slides.map((s) => s.id)]);
     if (new Set(ids).size !== ids.length)
       ctx.addIssue({

@@ -1,0 +1,80 @@
+[
+  {
+    "file": "Universal-Slide-Composer-SCORM-1.2.zip",
+    "sha256": "49d0c932d97de8d4018f909b770c551e0de33b6b632f4671c40b60cb34ead551",
+    "bytes": 327993,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 1.2",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "Universal Slide Composer — demonstration",
+      "fingerprint": "4100dd986ca8190665d3c218fa95976bf1269e58d7f13fbd71d2805218e89d2e",
+      "exportedAt": "2026-11-04T16:13:55.077Z",
+      "singleSco": true,
+      "publisherVersion": "composer.1",
+      "scoringPolicy": {
+        "passingScore": 80,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-credit-in-level-attempt",
+        "completion": "configured-slides-activities-and-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 80%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  },
+  {
+    "file": "Universal-Slide-Composer-SCORM-2004-4th.zip",
+    "sha256": "2b7293c0612e988dbb982677aa7d66b20aa1b2aa2b69d08f79416252801cf645",
+    "bytes": 342335,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 2004 4th Edition",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "Universal Slide Composer — demonstration",
+      "fingerprint": "44c14a99781b92789ccd3de2aac8829d840ca358c2ca724350a8017cfd168ba8",
+      "exportedAt": "2026-11-04T16:13:55.398Z",
+      "singleSco": true,
+      "publisherVersion": "composer.1",
+      "scoringPolicy": {
+        "passingScore": 80,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-credit-in-level-attempt",
+        "completion": "configured-slides-activities-and-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 80%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  }
+]

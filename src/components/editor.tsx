@@ -18,6 +18,8 @@ import {
   Copy,
   FileArchive,
 } from "lucide-react";
+import { ComposerEditor } from "./composer-editor";
+import { convertSlide, duplicateSlide } from "@/lib/composer/model";
 import { machineGuardingSlide } from "@/lib/machine-guarding-sample";
 import { QuestionOptionsEditor } from "./question-options-editor";
 import { isQuestion } from "@/lib/interactions";
@@ -294,6 +296,16 @@ export function CourseEditor({
   }
   function changeSlideKind(kind: Slide["kind"]) {
     if (!slide) return;
+    if (kind === "composed") {
+      patchSlide(convertSlide(slide, course.rules));
+      return;
+    }
+    if (slide.composition) {
+      onError(
+        "Composed slides use blocks. Duplicate/export the content before rebuilding a legacy slide.",
+      );
+      return;
+    }
     const correctIds = (slide.correctIds ?? []).filter((id) =>
       slide.options.some((option) => option.id === id),
     );
@@ -391,7 +403,10 @@ export function CourseEditor({
               <ArrowLeft />
               All courses
             </SecondaryButton>
-            <SecondaryButton onClick={() => onPreview(course)}>
+            <SecondaryButton
+              disabled={!courseSchema.safeParse(course).success}
+              onClick={() => onPreview(course)}
+            >
               <Play />
               Preview
             </SecondaryButton>
@@ -658,11 +673,7 @@ export function CourseEditor({
                           <IconButton
                             label="Duplicate slide"
                             onClick={() => {
-                              const copy = {
-                                ...slide,
-                                id: crypto.randomUUID(),
-                                title: `${slide.title} (copy)`,
-                              };
+                              const copy = duplicateSlide(slide);
                               change((c) => ({
                                 ...c,
                                 levels: c.levels.map((l) =>
@@ -701,6 +712,7 @@ export function CourseEditor({
                           <SelectField
                             label="Slide type"
                             value={slide.kind}
+                            disabled={!!slide.composition}
                             onChange={(e) =>
                               changeSlideKind(e.target.value as Slide["kind"])
                             }
@@ -711,154 +723,182 @@ export function CourseEditor({
                               Multi-Select Question
                             </option>
                             <option value="recovery">Life recovery</option>
+                            <option value="composed">
+                              Universal Slide Composer
+                            </option>
                           </SelectField>
                         </div>
-                        <label className="field">
-                          <span>Learning content</span>
-                          <textarea
-                            rows={6}
-                            value={slide.text}
-                            onChange={(e) =>
-                              patchSlide({ text: e.target.value })
-                            }
-                          />
-                        </label>
-                        <div className="form-grid">
-                          <MediaPicker
-                            label="Slide image"
-                            value={slide.image}
-                            onChange={(image) => patchSlide({ image })}
+                        {slide.composition ? (
+                          <ComposerEditor
+                            slide={slide}
+                            onChange={patchSlide}
                             onError={onError}
+                            navigationTargets={course.levels
+                              .flatMap((l) => l.slides)
+                              .slice(
+                                course.levels
+                                  .flatMap((l) => l.slides)
+                                  .findIndex((s) => s.id === slide.id) + 1,
+                              )}
                           />
-                          <div>
-                            <ColorField
-                              label="Slide background override"
-                              value={slide.background || course.theme.card}
-                              onChange={(background) =>
-                                patchSlide({ background })
-                              }
-                            />
-                            <SecondaryButton
-                              onClick={() => patchSlide({ background: "" })}
-                            >
-                              Use course theme
-                            </SecondaryButton>
-                            <p className="hint">
-                              {slide.background
-                                ? "This slide overrides the course card color."
-                                : "Inherits the course card color."}
-                            </p>
-                          </div>
-                        </div>
-                        {slide.kind === "recovery" && (
-                          <TextField
-                            label="Life restoration (%)"
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={
-                              slide.lifeRecovery ?? course.rules?.recovery ?? 25
-                            }
-                            onChange={(e) =>
-                              patchSlide({
-                                lifeRecovery: Number(e.target.value),
-                              })
-                            }
-                          />
-                        )}
-                        {isQuestion(slide) && (
-                          <PropertyPanel
-                            title={
-                              slide.kind === "multi-select"
-                                ? "Multi-select interaction"
-                                : "Single-choice interaction"
-                            }
-                          >
-                            <label className="check-field">
-                              <input
-                                type="checkbox"
-                                checked={slide.mandatory !== false}
+                        ) : (
+                          <>
+                            <label className="field">
+                              <span>Learning content</span>
+                              <textarea
+                                rows={6}
+                                value={slide.text}
                                 onChange={(e) =>
-                                  patchSlide({ mandatory: e.target.checked })
+                                  patchSlide({ text: e.target.value })
                                 }
                               />
-                              Mandatory competency: correct answer required for
-                              completion
                             </label>
-                            <label className="check-field">
-                              <input
-                                type="checkbox"
-                                checked={slide.scored !== false}
+                            <div className="form-grid">
+                              <MediaPicker
+                                label="Slide image"
+                                value={slide.image}
+                                onChange={(image) => patchSlide({ image })}
+                                onError={onError}
+                              />
+                              <div>
+                                <ColorField
+                                  label="Slide background override"
+                                  value={slide.background || course.theme.card}
+                                  onChange={(background) =>
+                                    patchSlide({ background })
+                                  }
+                                />
+                                <SecondaryButton
+                                  onClick={() => patchSlide({ background: "" })}
+                                >
+                                  Use course theme
+                                </SecondaryButton>
+                                <p className="hint">
+                                  {slide.background
+                                    ? "This slide overrides the course card color."
+                                    : "Inherits the course card color."}
+                                </p>
+                              </div>
+                            </div>
+                            {slide.kind === "recovery" && (
+                              <TextField
+                                label="Life restoration (%)"
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={
+                                  slide.lifeRecovery ??
+                                  course.rules?.recovery ??
+                                  25
+                                }
                                 onChange={(e) =>
-                                  patchSlide({ scored: e.target.checked })
+                                  patchSlide({
+                                    lifeRecovery: Number(e.target.value),
+                                  })
                                 }
                               />
-                              Include this question in the score
-                            </label>
-                            <p className="hint">
-                              Mandatory controls completion. Scored controls the
-                              percentage. An unscored mandatory question still
-                              needs a correct answer.
-                            </p>
-                            <TextField
-                              label="Incorrect-answer life penalty (%)"
-                              type="number"
-                              min={0}
-                              max={100}
-                              value={
-                                slide.lifePenalty ?? course.rules?.penalty ?? 25
-                              }
-                              onChange={(e) =>
-                                patchSlide({
-                                  lifePenalty: Number(e.target.value),
-                                })
-                              }
-                            />
-                            <p className="notice">
-                              Demonstration answer key. Verify with a qualified
-                              content owner before training use.
-                            </p>
-                            <QuestionOptionsEditor
-                              slide={slide}
-                              onChange={patchSlide}
-                              onError={onError}
-                            />
-                            {slide.kind === "multi-select" &&
-                              slide.scoringMode === "partial-credit" && (
+                            )}
+                            {isQuestion(slide) && (
+                              <PropertyPanel
+                                title={
+                                  slide.kind === "multi-select"
+                                    ? "Multi-select interaction"
+                                    : "Single-choice interaction"
+                                }
+                              >
+                                <label className="check-field">
+                                  <input
+                                    type="checkbox"
+                                    checked={slide.mandatory !== false}
+                                    onChange={(e) =>
+                                      patchSlide({
+                                        mandatory: e.target.checked,
+                                      })
+                                    }
+                                  />
+                                  Mandatory competency: correct answer required
+                                  for completion
+                                </label>
+                                <label className="check-field">
+                                  <input
+                                    type="checkbox"
+                                    checked={slide.scored !== false}
+                                    onChange={(e) =>
+                                      patchSlide({ scored: e.target.checked })
+                                    }
+                                  />
+                                  Include this question in the score
+                                </label>
+                                <p className="hint">
+                                  Mandatory controls completion. Scored controls
+                                  the percentage. An unscored mandatory question
+                                  still needs a correct answer.
+                                </p>
                                 <TextField
-                                  label="Partial-credit feedback"
+                                  label="Incorrect-answer life penalty (%)"
+                                  type="number"
+                                  min={0}
+                                  max={100}
                                   value={
-                                    slide.partialFeedback ??
-                                    "Some correct selections. Review your choices and try again."
+                                    slide.lifePenalty ??
+                                    course.rules?.penalty ??
+                                    25
                                   }
                                   onChange={(e) =>
                                     patchSlide({
-                                      partialFeedback: e.target.value,
+                                      lifePenalty: Number(e.target.value),
                                     })
                                   }
                                 />
-                              )}
-                            <TextField
-                              label="Correct feedback"
-                              value={slide.correctFeedback}
-                              onChange={(e) =>
-                                patchSlide({ correctFeedback: e.target.value })
-                              }
-                            />
-                            <TextField
-                              label="Incorrect feedback"
-                              value={slide.incorrectFeedback}
-                              onChange={(e) =>
-                                patchSlide({
-                                  incorrectFeedback: e.target.value,
-                                })
-                              }
-                            />
-                            <p className="hint">
-                              Life starts at 100%. The first incorrect
-                              submission per question deducts 25%.
-                            </p>
-                          </PropertyPanel>
+                                <p className="notice">
+                                  Demonstration answer key. Verify with a
+                                  qualified content owner before training use.
+                                </p>
+                                <QuestionOptionsEditor
+                                  slide={slide}
+                                  onChange={patchSlide}
+                                  onError={onError}
+                                />
+                                {slide.kind === "multi-select" &&
+                                  slide.scoringMode === "partial-credit" && (
+                                    <TextField
+                                      label="Partial-credit feedback"
+                                      value={
+                                        slide.partialFeedback ??
+                                        "Some correct selections. Review your choices and try again."
+                                      }
+                                      onChange={(e) =>
+                                        patchSlide({
+                                          partialFeedback: e.target.value,
+                                        })
+                                      }
+                                    />
+                                  )}
+                                <TextField
+                                  label="Correct feedback"
+                                  value={slide.correctFeedback}
+                                  onChange={(e) =>
+                                    patchSlide({
+                                      correctFeedback: e.target.value,
+                                    })
+                                  }
+                                />
+                                <TextField
+                                  label="Incorrect feedback"
+                                  value={slide.incorrectFeedback}
+                                  onChange={(e) =>
+                                    patchSlide({
+                                      incorrectFeedback: e.target.value,
+                                    })
+                                  }
+                                />
+                                <p className="hint">
+                                  Life starts at 100%. The first incorrect
+                                  submission per question deducts 25%.
+                                </p>
+                              </PropertyPanel>
+                            )}
+                          </>
                         )}
                       </div>
                     </>

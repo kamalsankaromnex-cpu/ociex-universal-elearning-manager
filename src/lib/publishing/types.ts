@@ -1,5 +1,5 @@
 import { z } from "zod";
-export const PUBLISHER_VERSION = "phase3.1";
+export const PUBLISHER_VERSION = "composer.1";
 export const exportRequestSchema = z
   .object({
     revision: z.number().int().positive(),

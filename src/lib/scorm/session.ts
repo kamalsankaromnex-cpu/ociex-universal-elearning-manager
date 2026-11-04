@@ -1,3 +1,5 @@
+import { composerContext } from "../composer/model";
+import { validateComposerResume } from "../composer/runtime";
 import type { CourseData } from "../course";
 import {
   assessment,
@@ -66,6 +68,7 @@ export class ScormSessionManager {
             flatten(this.course).length,
             this.course.levels.length,
             this.adapter.version,
+            composerContext(this.course),
           );
           if (
             location &&
@@ -79,6 +82,7 @@ export class ScormSessionManager {
             "LMS resume state is missing. Start a new attempt or contact your LMS administrator.",
           );
         validateMultiResume(this.course, state);
+        validateComposerResume(this.course, state);
         if (state.finished && !assessment(this.course, state).eligible)
           throw new Error(
             "Saved completion does not satisfy mandatory competency requirements. Contact your LMS administrator.",
@@ -121,6 +125,7 @@ export class ScormSessionManager {
       flatten(this.course).length,
       this.course.levels.length,
       this.adapter.version,
+      composerContext(this.course),
     );
     this.adapter.set("cmi.suspend_data", data);
     const elapsed = Date.now() - this.started;

@@ -51,6 +51,12 @@ export class PackageBuilder {
         s.image = media(s.image);
         for (const option of s.options)
           if (option.image) option.image = media(option.image);
+        for (const block of s.composition?.blocks ?? []) {
+          if (block.kind === "media") block.src = media(block.src);
+          if (block.kind === "interaction")
+            for (const option of block.question.options)
+              if (option.image) option.image = media(option.image);
+        }
       }
     const metadata = {
       publisher: "Coursecraft",
@@ -69,8 +75,10 @@ export class PackageBuilder {
         optional: copy.rules?.optionalScoring ?? "include",
         unanswered: copy.rules?.unansweredScoring ?? "zero",
         unscored: "excluded",
-        answerCredit: "best-correct-in-attempt",
-        completion: "all-visited-mandatory-correct-life-positive",
+        answerCredit: "best-credit-in-level-attempt",
+        completion: copy.levels.some((l) => l.slides.some((s) => s.composition))
+          ? "configured-slides-activities-and-life-positive"
+          : "all-visited-mandatory-correct-life-positive",
       },
     };
     files["assets/player.js"] = strToU8(await playerBundle());

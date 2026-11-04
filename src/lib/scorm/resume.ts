@@ -1,3 +1,8 @@
+import {
+  encodeComposer,
+  decodeComposer,
+  type ComposerContext,
+} from "../composer/codec";
 import { gameStateSchema, type LearnerGameState } from "../game";
 import type { ScormVersion } from "./types";
 function bits(indices: number[], count: number) {
@@ -31,6 +36,7 @@ export class ResumeStateSerializer {
     slideCount: number,
     levelCount: number,
     version: ScormVersion,
+    context?: ComposerContext,
   ) {
     const s = gameStateSchema.parse(state);
     const multi =
@@ -45,7 +51,7 @@ export class ResumeStateSerializer {
               return [index, value.selection, value.credit];
             });
     const text = JSON.stringify([
-      multi === undefined ? 1 : 2,
+      s.composer ? 3 : multi === undefined ? 1 : 2,
       fingerprint,
       s.life,
       s.index,
@@ -56,7 +62,20 @@ export class ResumeStateSerializer {
       ),
       bits(s.completedLevels, levelCount),
       bits(s.stars, levelCount),
-      ...(multi === undefined ? [] : [multi]),
+      ...(s.composer
+        ? [
+            multi ?? [],
+            encodeComposer(
+              s.composer,
+              context ??
+                (() => {
+                  throw Error("Composer resume context is required");
+                })(),
+            ),
+          ]
+        : multi === undefined
+          ? []
+          : [multi]),
     ]);
     if (text.length > this.limit(version))
       throw new Error("Resume data exceeds SCORM limit");
@@ -68,13 +87,18 @@ export class ResumeStateSerializer {
     slideCount: number,
     levelCount: number,
     version: ScormVersion,
+    context?: ComposerContext,
   ): LearnerGameState {
     if (text.length > this.limit(version))
       throw new Error("LMS resume data exceeds SCORM limit");
     const p: unknown = JSON.parse(text);
     if (
       !Array.isArray(p) ||
-      !((p[0] === 1 && p.length === 12) || (p[0] === 2 && p.length === 13)) ||
+      !(
+        (p[0] === 1 && p.length === 12) ||
+        (p[0] === 2 && p.length === 13) ||
+        (p[0] === 3 && p.length === 14)
+      ) ||
       p[1] !== fingerprint ||
       (p[5] !== 0 && p[5] !== 1)
     )
@@ -83,7 +107,7 @@ export class ResumeStateSerializer {
       );
     let multi:
       Record<string, { selection: number; credit: number }> | undefined;
-    if (p[0] === 2) {
+    if (p[0] === 2 || p[0] === 3) {
       const values = p[12];
       if (
         !Array.isArray(values) ||
@@ -115,7 +139,20 @@ export class ResumeStateSerializer {
       recovered: indices(p[9], slideCount),
       completedLevels: indices(p[10], levelCount),
       stars: indices(p[11], levelCount),
-      ...(multi === undefined ? {} : { multi }),
+      ...(multi === undefined || (p[0] === 3 && !Object.keys(multi).length)
+        ? {}
+        : { multi }),
+      ...(p[0] === 3
+        ? {
+            composer: decodeComposer(
+              p[13],
+              context ??
+                (() => {
+                  throw Error("Composer resume context is required");
+                })(),
+            ),
+          }
+        : {}),
     });
     if (state.index >= slideCount) throw new Error("Invalid resume bookmark");
     return state;

@@ -1,4 +1,16 @@
 import { z } from "zod";
+import { composerStateSchema } from "./composer/state";
+import { questionSlide } from "./composer/model";
+import {
+  composerComplete,
+  canNavigate,
+  composerEvent,
+  submitComposer,
+  activateComposer,
+  retryComposer,
+  recoverComposer,
+  resetComposerLevel,
+} from "./composer/runtime";
 import {
   isQuestion,
   normalizeSubmission,
@@ -17,6 +29,7 @@ export const gameStateSchema = z.object({
   stars: z.array(z.number().int().min(0)),
   attempts: z.number().int().min(0).max(1000000),
   finished: z.boolean(),
+  composer: composerStateSchema.optional(),
   multi: z
     .record(
       z.string().regex(/^(0|[1-9]\d*)$/),
@@ -48,48 +61,82 @@ export const flatten = (course: CourseData) =>
       levelIndex,
     })),
   );
-export function assessment(course: CourseData, state: LearnerGameState) {
-  const slides = flatten(course),
-    questions = slides.flatMap((s, i) =>
-      isQuestion(s) &&
-      s.scored !== false &&
-      (s.mandatory !== false || course.rules?.optionalScoring !== "exclude") &&
-      (s.mandatory !== false ||
-        course.rules?.unansweredScoring !== "exclude-optional" ||
-        state.passed.includes(i) ||
-        state.penalized.includes(i))
-        ? [i]
+export function allQuestions(course: CourseData) {
+  return flatten(course).flatMap((slide, index) =>
+    slide.composition
+      ? slide.composition.blocks.flatMap((block) =>
+          block.kind === "interaction"
+            ? [{ question: questionSlide(slide, block), index, composed: true }]
+            : [],
+        )
+      : isQuestion(slide)
+        ? [{ question: slide, index, composed: false }]
         : [],
-    );
-  const mandatory = slides.every(
-    (s, i) =>
-      !isQuestion(s) || s.mandatory === false || state.passed.includes(i),
   );
-  const visited = slides.every((_, i) => state.visited.includes(i));
+}
+export function assessment(course: CourseData, state: LearnerGameState) {
+  const slides = flatten(course);
+  const questions = allQuestions(course).filter(
+    ({ question: q, index, composed }) =>
+      q.scored !== false &&
+      (q.mandatory !== false || course.rules?.optionalScoring !== "exclude") &&
+      (q.mandatory !== false ||
+        course.rules?.unansweredScoring !== "exclude-optional" ||
+        (composed
+          ? !!state.composer?.answers[q.id]
+          : state.passed.includes(index) || state.penalized.includes(index))),
+  );
   const score = questions.length
     ? Math.round(
         (questions.reduce(
-          (total, i) =>
-            total +
-            (state.passed.includes(i)
-              ? 1
-              : (state.multi?.[i]?.credit ?? 0) / 10000),
+          (n, { question: q, index, composed }) =>
+            n +
+            (composed
+              ? (state.composer?.answers[q.id]?.credit ?? 0) / 10000
+              : state.passed.includes(index)
+                ? 1
+                : (state.multi?.[index]?.credit ?? 0) / 10000),
           0,
         ) /
           questions.length) *
           100,
       )
     : 100;
+  const required = slides.filter(
+    (s) => !s.composition || s.composition.completion.required,
+  );
+  const complete = (slide: (typeof slides)[number]) =>
+    slide.composition
+      ? composerComplete(slide, state, slides.indexOf(slide))
+      : state.visited.includes(slides.indexOf(slide)) &&
+        (!isQuestion(slide) ||
+          slide.mandatory === false ||
+          state.passed.includes(slides.indexOf(slide)));
+  const eligible =
+    slides.length > 0 &&
+    state.visited.length > 0 &&
+    required.every(complete) &&
+    state.life > 0;
   return {
-    eligible: slides.length > 0 && mandatory && visited && state.life > 0,
+    eligible,
     score,
     success: score >= (course.rules?.passScore ?? 80),
     assessmentComplete:
       questions.length > 0 &&
-      questions.every(
-        (i) => state.passed.includes(i) || state.penalized.includes(i),
+      questions.every(({ question: q, index, composed }) =>
+        composed
+          ? !!state.composer?.answers[q.id]
+          : state.passed.includes(index) || state.penalized.includes(index),
       ),
-    progress: slides.length ? state.visited.length / slides.length : 0,
+    progress: required.length
+      ? required.filter((s) =>
+          s.composition
+            ? complete(s)
+            : state.visited.includes(slides.indexOf(s)),
+        ).length / required.length
+      : state.visited.length
+        ? 1
+        : 0,
   };
 }
 function award(course: CourseData, state: LearnerGameState) {
@@ -97,12 +144,14 @@ function award(course: CourseData, state: LearnerGameState) {
   const completed = course.levels.flatMap((_, l) => {
     const entries = slides.flatMap((s, i) => (s.levelIndex === l ? [i] : []));
     return entries.length &&
-      entries.every(
-        (i) =>
-          state.visited.includes(i) &&
-          (!isQuestion(slides[i]) ||
-            slides[i].mandatory === false ||
-            state.passed.includes(i)),
+      entries.every((i) =>
+        slides[i].composition
+          ? !slides[i].composition!.completion.required ||
+            composerComplete(slides[i], state, i)
+          : state.visited.includes(i) &&
+            (!isQuestion(slides[i]) ||
+              slides[i].mandatory === false ||
+              state.passed.includes(i)),
       ) &&
       state.life > 0
       ? [l]
@@ -116,13 +165,16 @@ export function visit(
   index: number,
 ) {
   const slides = flatten(course);
-  if (index < 0 || index >= slides.length || state.life === 0) return state;
+  if (!canNavigate(course, state, index)) return state;
   if (state.finished) return { ...state, index };
-  return award(course, {
+  let next = {
     ...state,
     index,
     visited: [...new Set([...state.visited, index])],
-  });
+  };
+  if (slides[index].composition && !state.visited.includes(index))
+    next = composerEvent(slides[index], next, { event: "enter" }).state;
+  return award(course, next);
 }
 export function answerQuestion(
   course: CourseData,
@@ -139,6 +191,8 @@ export function submitQuestion(
   result: SubmissionResult | null,
 ) {
   const slide = flatten(course)[state.index];
+  if (slide?.composition)
+    return finishComposerEvent(course, submitComposer(slide, state, result));
   if (
     state.finished ||
     state.life === 0 ||
@@ -224,6 +278,9 @@ export function retryLevel(course: CourseData, state: LearnerGameState) {
     stars: state.stars.filter((l) => l !== level),
     completedLevels: state.completedLevels.filter((l) => l !== level),
     attempts: state.attempts + 1,
+    ...(state.composer
+      ? { composer: resetComposerLevel(course, state, level) }
+      : {}),
     ...(state.multi
       ? {
           multi: Object.fromEntries(
@@ -281,4 +338,56 @@ export function validateMultiResume(
     )
       throw new Error("Multi-select resume score or selection is invalid");
   }
+}
+
+function finishComposerEvent(
+  course: CourseData,
+  result: { state: LearnerGameState; target?: string },
+) {
+  let next = award(course, result.state);
+  if (result.target) {
+    const index = flatten(course).findIndex((s) => s.id === result.target);
+    if (canNavigate(course, next, index)) next = visit(course, next, index);
+  }
+  return next;
+}
+export function activateBlock(
+  course: CourseData,
+  state: LearnerGameState,
+  id: string,
+) {
+  return finishComposerEvent(
+    course,
+    activateComposer(flatten(course)[state.index], state, id),
+  );
+}
+export function retryActivity(
+  course: CourseData,
+  state: LearnerGameState,
+  id: string,
+) {
+  return finishComposerEvent(
+    course,
+    retryComposer(flatten(course)[state.index], state, id),
+  );
+}
+export function recoverBlock(
+  course: CourseData,
+  state: LearnerGameState,
+  id: string,
+) {
+  return award(
+    course,
+    recoverComposer(flatten(course)[state.index], state, id),
+  );
+}
+export function dismissFeedback(state: LearnerGameState, id: string) {
+  if (!state.composer) return state;
+  return {
+    ...state,
+    composer: {
+      ...state.composer,
+      feedback: state.composer.feedback.filter((key) => key !== id),
+    },
+  };
 }
