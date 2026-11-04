@@ -18,7 +18,8 @@
     "export:demo": "node --env-file=.env --import tsx scripts/export-demo.ts",
     "test:migrations": "node --env-file=.env scripts/check-publishing-migrations.mjs",
     "export:multi-select": "node --env-file=.env --import tsx scripts/export-multi-select.ts",
-    "export:composer": "node --env-file=.env --import tsx scripts/export-composer.ts"
+    "export:composer": "node --env-file=.env --import tsx scripts/export-composer.ts",
+    "export:game-demo": "node --env-file=.env --import tsx scripts/export-game-demo.ts"
   },
   "dependencies": {
     "@fontsource/inter": "5.2.8",

@@ -1,0 +1,1052 @@
+{
+  "title": "DICV EHS Refresher Training — Safety eModule",
+  "description": "Illustrated 2D game-based safety learning experience featuring DICV Safety Culture, Vision Zero, Machine Guarding, and Committee Governance.",
+  "rules": {
+    "penalty": 20,
+    "recovery": 25,
+    "passScore": 75,
+    "optionalScoring": "include",
+    "unansweredScoring": "zero"
+  },
+  "theme": {
+    "background": "#081325",
+    "section": "#0E2445",
+    "header": "#0B1F3A",
+    "navigation": "#087E8B",
+    "text": "#F8FAFC",
+    "muted": "#64748B",
+    "primary": "#087E8B",
+    "buttonText": "#FFFFFF",
+    "border": "#1E3A8A",
+    "card": "#122B52",
+    "icon": "#087E8B",
+    "life": "#22C55E",
+    "star": "#F59E0B",
+    "font": "Inter",
+    "fontSize": 16,
+    "radius": 16,
+    "logo": "",
+    "backgroundImage": "",
+    "style": "game",
+    "gameAccent": "#F59E0B"
+  },
+  "header": {
+    "title": "DICV EHS Refresher Training — Safety eModule",
+    "subtitle": "Block 1: DICV Safety Culture & Vision Zero",
+    "showLife": true,
+    "showLogo": true
+  },
+  "levels": [
+    {
+      "id": "lvl-daimler-block1",
+      "title": "Block 1: DICV Safety Culture & Vision Zero",
+      "slides": [
+        {
+          "id": "daimler:demo1:welcome",
+          "title": "Welcome to Block 1: DICV Safety Culture & Vision Zero",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d1:characters",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "character",
+                "character": "character-group",
+                "pose": "celebrating",
+                "name": "DICV Safety Crew",
+                "alt": "Safety Officer, Fox Mascot, and Robot Drone welcoming the learner"
+              },
+              {
+                "id": "d1:speech",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Welcome to Block 1: DICV Safety Culture & Vision Zero! Explore the topics in this block to strengthen your understanding of proactive safety protocols and our journey toward zero harm.",
+                "contentVariant": "speech-bubble",
+                "speaker": "DICV Safety Team",
+                "bubbleTail": "left"
+              },
+              {
+                "id": "d1:menu",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "1. Why Safety Is Important — Machine Guarding & Consequence Awareness\n2. DICV EHS Vision — Proactive Risk Management\n3. Safety Strategy — Safe Workplace, Systems & Behavior\n4. Safety Culture — 4-Stage Evolution\n5. Safety Review Structure — Apex, Sub, and Ad-Hoc Committees\n6. Vision Zero — Zero Fatalities, Zero Injuries, Zero Regrets",
+                "contentVariant": "scenario-panel",
+                "title": "Block 1 Menu — Key Safety Milestones"
+              },
+              {
+                "id": "d1:btn-start",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "button",
+                "label": "Begin Challenge >",
+                "buttonVariant": "game"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d1-start",
+                "trigger": {
+                  "event": "activate",
+                  "sourceId": "d1:btn-start"
+                },
+                "actions": [
+                  {
+                    "type": "complete"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "view",
+              "required": false,
+              "interactionIds": []
+            },
+            "navigation": "free",
+            "scene": {
+              "titleBanner": "Welcome to Block 1: DICV Safety Culture & Vision Zero",
+              "preset": "industrial-plant"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "daimler:demo2:machine-guard",
+          "title": "Why Safety is Important",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d2:characters",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "character",
+                "character": "character-group",
+                "pose": "thinking",
+                "name": "Safety Officer & Fox Mascot",
+                "alt": "Safety Officer thinking beside Fox mascot and Drone"
+              },
+              {
+                "id": "d2:speech",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "A colleague bypassed a machine guard to save time. If we ignore such a safety precaution, what could happen next?",
+                "contentVariant": "speech-bubble",
+                "speaker": "Safety Lead",
+                "bubbleTail": "left"
+              },
+              {
+                "id": "d2:scenario",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Safety interlock switches and physical protective barriers prevent accidental access to moving pinch-points. Bypassing interlocks for short-term convenience introduces catastrophic failure modes.",
+                "contentVariant": "scenario-panel",
+                "title": "The Scenario"
+              },
+              {
+                "id": "d2:q-consequences",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "multi-select",
+                  "prompt": "If a colleague bypassed a machine guard to save time, what could happen next?",
+                  "options": [
+                    {
+                      "id": "inj",
+                      "text": "Injury to employees"
+                    },
+                    {
+                      "id": "eqp",
+                      "text": "Damage to equipment"
+                    },
+                    {
+                      "id": "prd",
+                      "text": "Production disruption"
+                    },
+                    {
+                      "id": "env",
+                      "text": "Environmental impact"
+                    },
+                    {
+                      "id": "fin",
+                      "text": "Financial and reputational loss"
+                    }
+                  ],
+                  "correctId": "inj",
+                  "correctIds": [
+                    "inj",
+                    "eqp",
+                    "prd",
+                    "env",
+                    "fin"
+                  ],
+                  "scoringMode": "all-or-nothing",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 20
+                }
+              },
+              {
+                "id": "d2:fb-correct",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d2:q-consequences",
+                "condition": "correct",
+                "text": "Outstanding! All 5 consequences can result from bypassing a safety barrier. Safety guards exist to protect lives, machinery, continuity, and our shared environment.",
+                "presentation": "popup"
+              },
+              {
+                "id": "d2:fb-incorrect",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d2:q-consequences",
+                "condition": "incorrect",
+                "text": "Bypassing a machine guard jeopardizes every operational dimension: employee health, machinery integrity, production line uptime, environmental controls, and organizational trust. Review the scenario and select all applicable risks.",
+                "presentation": "popup"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d2-correct",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "d2:q-consequences"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d2:fb-correct"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d2:q-consequences"
+                  },
+                  {
+                    "type": "complete"
+                  }
+                ]
+              },
+              {
+                "id": "r-d2-incorrect",
+                "trigger": {
+                  "event": "incorrect",
+                  "sourceId": "d2:q-consequences"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d2:fb-incorrect"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d2:q-consequences"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "activities",
+              "required": true,
+              "interactionIds": [
+                "d2:q-consequences"
+              ]
+            },
+            "navigation": "after-completion",
+            "scene": {
+              "titleBanner": "Why Safety is Important",
+              "preset": "industrial-plant"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "daimler:demo2:committee-routing",
+          "title": "Safety Review Structure — Committee Escalation",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d2b:character",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "character",
+                "character": "character-group",
+                "pose": "pointing",
+                "name": "Safety Team",
+                "alt": "Safety Officer pointing toward scenario prompt"
+              },
+              {
+                "id": "d2b:speech",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Route the safety issue to the right committee based on its focus area.",
+                "contentVariant": "speech-bubble",
+                "speaker": "Safety Officer",
+                "bubbleTail": "left"
+              },
+              {
+                "id": "d2b:scenario",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "A production area has a critical, long-pending safety performance issue that needs a conclusive decision.",
+                "contentVariant": "scenario-panel",
+                "title": "Safety Issue 2 of 3"
+              },
+              {
+                "id": "d2b:q-committee",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "single-choice",
+                  "prompt": "Which committee should review this issue?",
+                  "options": [
+                    {
+                      "id": "apex",
+                      "text": "Apex Committee"
+                    },
+                    {
+                      "id": "sub",
+                      "text": "Sub Committee"
+                    },
+                    {
+                      "id": "adhoc",
+                      "text": "Ad-hoc Committee — Initiatives"
+                    }
+                  ],
+                  "correctId": "apex",
+                  "correctIds": [
+                    "apex"
+                  ],
+                  "scoringMode": "all-or-nothing",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 20
+                }
+              },
+              {
+                "id": "d2b:fb-correct",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d2b:q-committee",
+                "condition": "correct",
+                "text": "Correct! The Apex Committee holds high-level governance authority for long-pending, critical organization-wide safety issues requiring decisive leadership mandate.",
+                "presentation": "popup"
+              },
+              {
+                "id": "d2b:fb-incorrect",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d2b:q-committee",
+                "condition": "incorrect",
+                "text": "Incorrect. While Sub Committees handle tactical area-specific concerns, critical long-pending matters that require organization-wide conclusive mandates must be escalated to the Apex Committee.",
+                "presentation": "popup"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d2b-correct",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "d2b:q-committee"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d2b:fb-correct"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d2b:q-committee"
+                  },
+                  {
+                    "type": "complete"
+                  }
+                ]
+              },
+              {
+                "id": "r-d2b-incorrect",
+                "trigger": {
+                  "event": "incorrect",
+                  "sourceId": "d2b:q-committee"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d2b:fb-incorrect"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d2b:q-committee"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "activities",
+              "required": true,
+              "interactionIds": [
+                "d2b:q-committee"
+              ]
+            },
+            "navigation": "after-completion",
+            "scene": {
+              "titleBanner": "Safety Review Structure",
+              "preset": "workshop"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "daimler:demo3:safety-culture",
+          "title": "Safety Culture",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d3:video-briefing",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "video",
+                "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                "poster": "",
+                "title": "Safety Culture Evolution Briefing",
+                "startOverlay": true,
+                "startButtonLabel": "Start Safety Briefing Video",
+                "allowSkip": true
+              },
+              {
+                "id": "d3:characters",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "character",
+                "character": "character-group",
+                "pose": "celebrating",
+                "name": "Safety Crew",
+                "alt": "Safety Officer, Fox Mascot, and AI Drone cheering the progression"
+              },
+              {
+                "id": "d3:speech",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Safety Culture evolves through four stages. Can you arrange the stages in the correct order (from earliest to most advanced)?",
+                "contentVariant": "speech-bubble",
+                "speaker": "Safety Officer & Mascot",
+                "bubbleTail": "left"
+              },
+              {
+                "id": "d3:instructions",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Step 1: Foundational awareness | Step 2: Supervised processes | Step 3: Individual ownership | Step 4: True team interdependence",
+                "contentVariant": "heading-banner",
+                "title": "Drag and drop the stages in the correct order (from earliest to most advanced)"
+              },
+              {
+                "id": "d3:q-stages",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "sequencing",
+                  "prompt": "Can you arrange the four safety culture stages in the correct order (from earliest to most advanced)?",
+                  "options": [
+                    {
+                      "id": "react",
+                      "text": "Reactive"
+                    },
+                    {
+                      "id": "dep",
+                      "text": "Dependant"
+                    },
+                    {
+                      "id": "indep",
+                      "text": "Independent"
+                    },
+                    {
+                      "id": "interdep",
+                      "text": "Interdependent"
+                    }
+                  ],
+                  "correctId": "react",
+                  "correctIds": [
+                    "react",
+                    "dep",
+                    "indep",
+                    "interdep"
+                  ],
+                  "scoringMode": "all-or-nothing",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 20
+                }
+              },
+              {
+                "id": "d3:fb-correct",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d3:q-stages",
+                "condition": "correct",
+                "text": "Splendid mastery! Safety culture matures sequentially: from Reactive (instinct/compliance) → Dependant (rules/supervision) → Independent (personal ownership) → Interdependent (team vigilance and collective zero harm).",
+                "presentation": "popup"
+              },
+              {
+                "id": "d3:fb-incorrect",
+                "version": 1,
+                "region": "main",
+                "layer": "overlay",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d3:q-stages",
+                "condition": "incorrect",
+                "text": "Not quite right. Remember that safety culture progresses from compliance and supervision to individual responsibility, and ultimately to collective team ownership. Try reordering the staircase.",
+                "presentation": "popup"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d3-video",
+                "trigger": {
+                  "event": "video-complete",
+                  "sourceId": "d3:video-briefing"
+                },
+                "actions": [
+                  {
+                    "type": "show",
+                    "targetId": "d3:q-stages"
+                  }
+                ]
+              },
+              {
+                "id": "r-d3-correct",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "d3:q-stages"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d3:fb-correct"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d3:q-stages"
+                  },
+                  {
+                    "type": "complete"
+                  }
+                ]
+              },
+              {
+                "id": "r-d3-incorrect",
+                "trigger": {
+                  "event": "incorrect",
+                  "sourceId": "d3:q-stages"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d3:fb-incorrect"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d3:q-stages"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "activities",
+              "required": true,
+              "interactionIds": [
+                "d3:q-stages"
+              ]
+            },
+            "navigation": "after-completion",
+            "scene": {
+              "titleBanner": "Safety Culture",
+              "preset": "industrial-plant"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "daimler:demo4:side-by-side",
+          "title": "Shop Floor Protocol & Dual Checks",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "columns",
+              "regions": [
+                "left",
+                "right"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d4:left-header",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Industrial floor safety relies on continuous individual discipline. Machine shop corridors present forklift transit, overhead hoist operations, and precision machinery zones.",
+                "contentVariant": "scenario-panel",
+                "title": "Standard Operating Procedures (SOP)"
+              },
+              {
+                "id": "d4:left-guidelines",
+                "version": 1,
+                "region": "left",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Never assume someone else will report a spill or that a walkway is completely free of transient hazards. Check both protocols on the right to complete this station.",
+                "contentVariant": "speech-bubble",
+                "speaker": "Floor Supervisor",
+                "bubbleTail": "top"
+              },
+              {
+                "id": "d4:q-ppe",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "single-choice",
+                  "prompt": "Which PPE is mandatory in designated machine shop corridors?",
+                  "options": [
+                    {
+                      "id": "glasses",
+                      "text": "Safety eyewear & steel-toe shoes"
+                    },
+                    {
+                      "id": "gloves",
+                      "text": "Loose knit gloves"
+                    },
+                    {
+                      "id": "none",
+                      "text": "No PPE required in walkways"
+                    }
+                  ],
+                  "correctId": "glasses",
+                  "correctIds": [
+                    "glasses"
+                  ],
+                  "scoringMode": "all-or-nothing",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 10
+                }
+              },
+              {
+                "id": "d4:fb-ppe",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d4:q-ppe",
+                "condition": "correct",
+                "text": "Correct: Approved safety glasses with side shields and safety boots are mandatory across all plant aisles.",
+                "presentation": "inline"
+              },
+              {
+                "id": "d4:q-hazard",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "interaction",
+                "question": {
+                  "kind": "multi-select",
+                  "prompt": "Select the immediate actions when noticing an oil spill near the conveyor:",
+                  "options": [
+                    {
+                      "id": "cordon",
+                      "text": "Cordon off the immediate area"
+                    },
+                    {
+                      "id": "report",
+                      "text": "Report to team leader / safety desk"
+                    },
+                    {
+                      "id": "ignore",
+                      "text": "Step around it and continue"
+                    }
+                  ],
+                  "correctId": "cordon",
+                  "correctIds": [
+                    "cordon",
+                    "report"
+                  ],
+                  "scoringMode": "all-or-nothing",
+                  "mandatory": true,
+                  "scored": true,
+                  "lifePenalty": 10
+                }
+              },
+              {
+                "id": "d4:fb-hazard",
+                "version": 1,
+                "region": "right",
+                "layer": "base",
+                "visible": false,
+                "required": false,
+                "kind": "feedback",
+                "interactionId": "d4:q-hazard",
+                "condition": "correct",
+                "text": "Correct: Immediate containment and escalation prevent slips and severe falls.",
+                "presentation": "inline"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d4-q1-corr",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "d4:q-ppe"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d4:fb-ppe"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d4:q-ppe"
+                  }
+                ]
+              },
+              {
+                "id": "r-d4-q2-corr",
+                "trigger": {
+                  "event": "correct",
+                  "sourceId": "d4:q-hazard"
+                },
+                "actions": [
+                  {
+                    "type": "feedback",
+                    "targetId": "d4:fb-hazard"
+                  },
+                  {
+                    "type": "record-result",
+                    "targetId": "d4:q-hazard"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "activities",
+              "required": true,
+              "interactionIds": [
+                "d4:q-ppe",
+                "d4:q-hazard"
+              ]
+            },
+            "navigation": "after-completion",
+            "scene": {
+              "titleBanner": "Shop Floor Protocol & Dual Checks",
+              "preset": "workshop"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        },
+        {
+          "id": "daimler:demo5:recovery",
+          "title": "Safety Oasis — Health Recovery Station",
+          "kind": "composed",
+          "text": "",
+          "image": "",
+          "background": "",
+          "composition": {
+            "version": 1,
+            "layout": {
+              "variant": "stacked",
+              "regions": [
+                "main"
+              ]
+            },
+            "blocks": [
+              {
+                "id": "d5:mascot",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "character",
+                "character": "fox-mascot",
+                "pose": "celebrating",
+                "name": "Fox Mascot",
+                "alt": "Fox mascot offering a safety first-aid life boost"
+              },
+              {
+                "id": "d5:speech",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "content",
+                "text": "Take a breath! You've navigated critical machine guarding and culture stages. Activate the health recharge station below to replenish your Life Meter by +25%.",
+                "contentVariant": "speech-bubble",
+                "speaker": "Safety Fox",
+                "bubbleTail": "left"
+              },
+              {
+                "id": "d5:heal",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "recovery",
+                "amount": 25
+              },
+              {
+                "id": "d5:btn-complete",
+                "version": 1,
+                "region": "main",
+                "layer": "base",
+                "visible": true,
+                "required": false,
+                "kind": "button",
+                "label": "Complete eModule >",
+                "buttonVariant": "game"
+              }
+            ],
+            "rules": [
+              {
+                "id": "r-d5-complete",
+                "trigger": {
+                  "event": "activate",
+                  "sourceId": "d5:btn-complete"
+                },
+                "actions": [
+                  {
+                    "type": "complete"
+                  }
+                ]
+              }
+            ],
+            "completion": {
+              "mode": "view",
+              "required": false,
+              "interactionIds": []
+            },
+            "navigation": "free",
+            "scene": {
+              "titleBanner": "Safety Oasis & Recovery",
+              "preset": "clean-room"
+            }
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Demonstration option A"
+            },
+            {
+              "id": "b",
+              "text": "Demonstration option B"
+            }
+          ],
+          "correctId": "a",
+          "correctFeedback": "Correct — demonstration feedback.",
+          "incorrectFeedback": "Try again — demonstration feedback. Review the content before continuing."
+        }
+      ]
+    }
+  ]
+}

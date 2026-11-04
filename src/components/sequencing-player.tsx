@@ -6,7 +6,6 @@ import {
   GripVertical,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
 } from "lucide-react";
 import type { InteractionBlock } from "@/lib/composer/schema";
 import type { Slide } from "@/lib/course";

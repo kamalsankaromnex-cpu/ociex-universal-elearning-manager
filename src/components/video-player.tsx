@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Play,
   Pause,
@@ -62,13 +63,13 @@ export function VideoPlayer({
     handleEnded();
   }
 
-  function handleEnded() {
+  const handleEnded = useCallback(() => {
     setIsPlaying(false);
     setIsCompleted(true);
     if (onComplete) {
       onComplete();
     }
-  }
+  }, [onComplete]);
 
   // Simulated video playback when using demonstration placeholder (no real MP4 stream)
   useEffect(() => {
@@ -85,7 +86,7 @@ export function VideoPlayer({
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isPlaying, isCompleted, block.src]);
+  }, [isPlaying, isCompleted, block.src, handleEnded]);
 
   return (
     <div className="video-player-container">

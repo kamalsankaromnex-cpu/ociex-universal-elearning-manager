@@ -19,7 +19,9 @@
     "fontSize": 16,
     "radius": 16,
     "logo": "",
-    "backgroundImage": ""
+    "backgroundImage": "",
+    "style": "standard",
+    "gameAccent": "#F59E0B"
   },
   "header": {
     "title": "Universal Slide Composer — demonstration",
@@ -76,7 +78,8 @@
                 "visible": true,
                 "required": false,
                 "kind": "button",
-                "label": "Reveal details"
+                "label": "Reveal details",
+                "buttonVariant": "game"
               },
               {
                 "id": "intro:last",
@@ -96,7 +99,8 @@
                 "visible": true,
                 "required": false,
                 "kind": "button",
-                "label": "Mark slide complete"
+                "label": "Mark slide complete",
+                "buttonVariant": "game"
               }
             ],
             "rules": [

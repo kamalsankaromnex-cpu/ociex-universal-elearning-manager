@@ -1,0 +1,80 @@
+[
+  {
+    "file": "Daimler-EHS-Game-Experience-SCORM-1.2.zip",
+    "sha256": "b9002084bcead253cd5a35756c67c0e714bfe6d053706be3a2da69243ad7cfa1",
+    "bytes": 343302,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 1.2",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "DICV EHS Refresher Training — Safety eModule",
+      "fingerprint": "671ade476fc5d7f7b2cc618f692b7c5b292b8d326800bfa67d0481442f51c744",
+      "exportedAt": "2026-11-04T17:46:32.954Z",
+      "singleSco": true,
+      "publisherVersion": "composer.1",
+      "scoringPolicy": {
+        "passingScore": 75,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-credit-in-level-attempt",
+        "completion": "configured-slides-activities-and-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 75%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  },
+  {
+    "file": "Daimler-EHS-Game-Experience-SCORM-2004-4th.zip",
+    "sha256": "ec35aa2b8197b403a75b3171e92a955fc2942bc21a1d68e51dab373bc413f041",
+    "bytes": 357643,
+    "metadata": {
+      "publisher": "Coursecraft",
+      "format": "SCORM 2004 4th Edition",
+      "revision": 1,
+      "scope": "course",
+      "level": null,
+      "title": "DICV EHS Refresher Training — Safety eModule",
+      "fingerprint": "2f509edf146512ca8a77b3087ef37b0c7ad3f261c8f94c3ab191da47b80b3b46",
+      "exportedAt": "2026-11-04T17:46:33.779Z",
+      "singleSco": true,
+      "publisherVersion": "composer.1",
+      "scoringPolicy": {
+        "passingScore": 75,
+        "optional": "include",
+        "unanswered": "zero",
+        "unscored": "excluded",
+        "answerCredit": "best-credit-in-level-attempt",
+        "completion": "configured-slides-activities-and-life-positive"
+      }
+    },
+    "validation": {
+      "errors": [],
+      "warnings": [
+        "Demonstration answer keys and provisional brand colors require content-owner approval.",
+        "Single SCO: advanced multi-SCO sequencing is not included.",
+        "Passing score: 75%. Optional questions: include. Unanswered questions: zero. Unscored questions are excluded."
+      ]
+    },
+    "manifest": {
+      "valid": true,
+      "errors": []
+    },
+    "configuredCredentialMatches": 0,
+    "externalLmsVerification": "unverified"
+  }
+]

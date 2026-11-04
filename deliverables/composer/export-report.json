@@ -1,8 +1,8 @@
 [
   {
     "file": "Universal-Slide-Composer-SCORM-1.2.zip",
-    "sha256": "49d0c932d97de8d4018f909b770c551e0de33b6b632f4671c40b60cb34ead551",
-    "bytes": 327993,
+    "sha256": "921834050035431679a7402564c975fce3a613b619a6b58903337ca4640c20c7",
+    "bytes": 340583,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 1.2",
@@ -10,8 +10,8 @@
       "scope": "course",
       "level": null,
       "title": "Universal Slide Composer — demonstration",
-      "fingerprint": "4100dd986ca8190665d3c218fa95976bf1269e58d7f13fbd71d2805218e89d2e",
-      "exportedAt": "2026-11-04T16:13:55.077Z",
+      "fingerprint": "ef1975663afa5705409edbfd60e6dd285f66ecb5ce63671ec286374d617894d4",
+      "exportedAt": "2026-11-04T17:46:21.947Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {
@@ -40,8 +40,8 @@
   },
   {
     "file": "Universal-Slide-Composer-SCORM-2004-4th.zip",
-    "sha256": "2b7293c0612e988dbb982677aa7d66b20aa1b2aa2b69d08f79416252801cf645",
-    "bytes": 342335,
+    "sha256": "a88ad941e7d54ca5d3866254b787fe47c6498e7acd5070b423af74ab77c13ff1",
+    "bytes": 354917,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 2004 4th Edition",
@@ -49,8 +49,8 @@
       "scope": "course",
       "level": null,
       "title": "Universal Slide Composer — demonstration",
-      "fingerprint": "44c14a99781b92789ccd3de2aac8829d840ca358c2ca724350a8017cfd168ba8",
-      "exportedAt": "2026-11-04T16:13:55.398Z",
+      "fingerprint": "f9a5af877b67bc84efc065689cde85d2003df1020aa696ef8986c8c7cec6f2cc",
+      "exportedAt": "2026-11-04T17:46:22.807Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {

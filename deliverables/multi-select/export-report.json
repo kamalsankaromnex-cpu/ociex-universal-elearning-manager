@@ -1,8 +1,8 @@
 [
   {
     "file": "Machine-Guarding-Multi-Select-SCORM-1.2.zip",
-    "sha256": "e000e4e98c2da1e290d0b0cd5c7575ab8ca3821fe02d5ae253002aa69a3131bc",
-    "bytes": 327172,
+    "sha256": "4fab2342394dc0aac77bac94dc02a43e1552885b31feca78798379eeef4a1dc6",
+    "bytes": 327275,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 1.2",
@@ -11,7 +11,7 @@
       "level": null,
       "title": "Machine guarding — multi-select demonstration",
       "fingerprint": "7b3ab7723f269b20e58f68dca59c101bcfea852ad40fa1f5c55fd777452f42db",
-      "exportedAt": "2026-11-04T16:13:55.954Z",
+      "exportedAt": "2026-11-04T16:57:39.988Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {
@@ -40,8 +40,8 @@
   },
   {
     "file": "Machine-Guarding-Multi-Select-SCORM-2004-4th.zip",
-    "sha256": "e3c0a67fedabe8235d6adee09ad2796b0b695170a5b8a231e43b7c07073be8c4",
-    "bytes": 341517,
+    "sha256": "267b2a94bac363fb17f67872c6c153d3a58b2ab3753060c5590765d3f32f2053",
+    "bytes": 341620,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 2004 4th Edition",
@@ -50,7 +50,7 @@
       "level": null,
       "title": "Machine guarding — multi-select demonstration",
       "fingerprint": "3804509b54c61b10d9143daff4698072ab1b07c9b3fd4d4b8f136aff76137f86",
-      "exportedAt": "2026-11-04T16:13:56.282Z",
+      "exportedAt": "2026-11-04T16:57:40.815Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {

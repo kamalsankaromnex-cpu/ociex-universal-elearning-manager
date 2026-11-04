@@ -733,6 +733,7 @@ export function CourseEditor({
                             slide={slide}
                             onChange={patchSlide}
                             onError={onError}
+                            course={course}
                             navigationTargets={course.levels
                               .flatMap((l) => l.slides)
                               .slice(

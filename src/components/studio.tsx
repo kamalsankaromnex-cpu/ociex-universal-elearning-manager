@@ -34,6 +34,7 @@ import {
   ErrorState,
 } from "./ui";
 import { type CourseData, newCourse, presets } from "@/lib/course";
+import { daimlerEhsDemoCourse } from "@/lib/game-demo";
 import { CourseEditor } from "./editor";
 import { Learner } from "./learner";
 type RecordCourse = {
@@ -347,15 +348,37 @@ export function Studio() {
                 title="Your courses"
                 description="A home for every learning experience you create."
                 actions={
-                  <Button
-                    onClick={() => {
-                      setTitle("");
-                      setCreate(true);
-                    }}
-                  >
-                    <Plus />
-                    Create course
-                  </Button>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <SecondaryButton
+                      disabled={busy}
+                      onClick={async () => {
+                        setBusy(true);
+                        try {
+                          const demo = daimlerEhsDemoCourse();
+                          const c = await api("/api/courses", "POST", demo);
+                          setCourses((x) => [c, ...x]);
+                          setSelected(c);
+                          notify("Daimler EHS Game Experience loaded successfully");
+                        } catch (e) {
+                          setError((e as Error).message);
+                        } finally {
+                          setBusy(false);
+                        }
+                      }}
+                    >
+                      <Sparkles />
+                      Load Daimler EHS Demo
+                    </SecondaryButton>
+                    <Button
+                      onClick={() => {
+                        setTitle("");
+                        setCreate(true);
+                      }}
+                    >
+                      <Plus />
+                      Create course
+                    </Button>
+                  </div>
                 }
               />
               <section className="welcome-banner">
