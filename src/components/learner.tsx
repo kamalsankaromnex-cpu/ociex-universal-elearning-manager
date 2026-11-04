@@ -44,17 +44,24 @@ export function Learner({
   const [answer, setAnswer] = useState(""),
     [feedback, setFeedback] = useState<boolean | null>(null),
     [trackingError, setTrackingError] = useState(""),
-    [ready, setReady] = useState(!tracking);
+    [ready, setReady] = useState(!tracking),
+    [reviewing, setReviewing] = useState(false),
+    [completionSaved, setCompletionSaved] = useState(false);
   const manager = useRef<ScormSessionManager | null>(null),
     latest = useRef(game);
+  const pendingSave = useRef(false);
   latest.current = game;
   const index = game.index;
   function persist() {
     if (!manager.current) return;
+    pendingSave.current = true;
     try {
       manager.current.save(latest.current);
+      pendingSave.current = false;
+      setCompletionSaved(latest.current.finished);
       setTrackingError("");
     } catch (e) {
+      setCompletionSaved(false);
       setTrackingError((e as Error).message);
     }
   }
@@ -77,12 +84,17 @@ export function Learner({
       );
       const restored = session.initialize();
       manager.current = session;
+      setReviewing(session.isReviewOnly);
       setGame(visit(course, restored, restored.index));
     } catch (e) {
       setTrackingError((e as Error).message);
     }
     setReady(true);
-    const exit = () => {
+    const exit = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        persist();
+        return;
+      }
       try {
         manager.current?.terminate(latest.current);
       } catch (e) {
@@ -92,11 +104,19 @@ export function Learner({
     const hidden = () => {
       if (document.visibilityState === "hidden") persist();
     };
+    const warnUnsaved = (event: BeforeUnloadEvent) => {
+      if (pendingSave.current) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", warnUnsaved);
     const timer = window.setInterval(persist, 15000);
     window.addEventListener("pagehide", exit);
     document.addEventListener("visibilitychange", hidden);
     return () => {
       clearInterval(timer);
+      window.removeEventListener("beforeunload", warnUnsaved);
       window.removeEventListener("pagehide", exit);
       document.removeEventListener("visibilitychange", hidden);
     };
@@ -407,11 +427,15 @@ export function Learner({
             )}
             {game.finished && (
               <p role="status">
-                {tracking && trackingError
-                  ? "Completion has not been saved to the LMS."
-                  : tracking
-                    ? "Completion submitted to the LMS."
-                    : "Preview complete. Progress is temporary."}
+                {reviewing
+                  ? "Previously completed. Saved LMS result retained."
+                  : tracking && trackingError
+                    ? "Completion has not been saved to the LMS."
+                    : tracking
+                      ? completionSaved
+                        ? "Completion submitted to the LMS."
+                        : "Saving completion to the LMS…"
+                      : "Preview complete. Progress is temporary."}
               </p>
             )}
           </div>

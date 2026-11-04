@@ -20,6 +20,10 @@ export function installMockLms(version: "1.2" | "2004") {
   ]
     ? "resume"
     : "ab-initio";
+  if (new URLSearchParams(window.location.search).has("normal-entry"))
+    values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "";
+  if (new URLSearchParams(window.location.search).has("fresh-attempt"))
+    values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "ab-initio";
   const calls: string[] = [];
   w.__lmsValues = values;
   w.__lmsCalls = calls;

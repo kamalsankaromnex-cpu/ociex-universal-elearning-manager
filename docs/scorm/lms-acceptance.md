@@ -1,6 +1,6 @@
 # External LMS acceptance — not yet executed
 
-No SCORM Cloud or Cornerstone credentials/staging access were configured. The application does not require these credentials to export ZIPs. Do not put LMS secrets into source, ZIPs, screenshots or chat. Any future API integration must use securely supplied environment bindings and the authorized destination.
+No SCORM Cloud or Cornerstone credentials/staging access were configured for this assistant. The user has supplied a real Level 01 registration screenshot showing complete/passed/100%; its exact package version is not visible. The expanded checks below still need external execution. The application does not require these credentials to export ZIPs. Do not put LMS secrets into source, ZIPs, screenshots or chat. Any future API integration must use securely supplied environment bindings and the authorized destination.
 
 ## SCORM Cloud
 
@@ -19,7 +19,7 @@ For **each of the four packages**:
 9. Use a multi-level fixture with recovery slides: check shared life, earned stars, configured restoration, zero-life current-level retry and retention of earlier stars. Confirm standalone level exports start their own life/completion.
 10. Inspect browser console and Cloud API debug logs for unsupported data elements, truncation, sequencing, commit and termination errors. Record exact symptoms without credentials or raw learner suspend data.
 
-Patched-package Cloud result table — **Not run by this review**. A user reported a failed earlier SCORM 2004 launch (scope not specified) with error 403. The [corrected packages](fix-uninitialized-bookmark.md) require a new Cloud registration test:
+Patched-package Cloud result table — **Not run by this assistant**. User evidence separately confirms one Level 01 completion/passed/100% flow (exact version not visible). A user reported a failed earlier SCORM 2004 launch (scope not specified) with error 403. The [corrected packages](fix-uninitialized-bookmark.md) require a new Cloud registration test:
 
 | Package               | Import  | Launch  | Incomplete/completed | Pass/fail/score | Resume/close | Debug errors  |
 | --------------------- | ------- | ------- | -------------------- | --------------- | ------------ | ------------- |
@@ -46,3 +46,5 @@ Do not claim compatibility until a learning administrator completes this checkli
 - [ ] Record product/tenant version, browser/date, test administrator approval, evidence and unresolved defects before accepting compatibility.
 
 Current Cornerstone status: **Not run; compatibility unverified**.
+
+Ready-to-import two-level QA ZIPs for both standards and precise expected life/score outcomes are in [the current QA walkthrough](remaining-checks.md). They are not approved safety training and are not inserted into the saved EHS course.

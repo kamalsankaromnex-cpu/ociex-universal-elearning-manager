@@ -97,3 +97,24 @@ describe("canonical shared game", () => {
     expect(assessment(c, s).success).toBe(false);
   });
 });
+for (const action of ["answer", "recover", "retry"] as const)
+  it(`completed learning cannot be mutated by ${action}`, () => {
+    const course = fixture();
+    const state = {
+      ...initialGame(),
+      finished: true,
+      visited: [0, 1, 2],
+      passed: [0, 2],
+      completedLevels: [0, 1],
+      stars: [0, 1],
+      index: action === "recover" ? 1 : 0,
+      life: 75,
+    };
+    const result =
+      action === "answer"
+        ? answerQuestion(course, state, "b")
+        : action === "recover"
+          ? recoverLife(course, state)
+          : retryLevel(course, state);
+    expect(result).toBe(state);
+  });

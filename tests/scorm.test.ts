@@ -334,3 +334,107 @@ for (const version of ["1.2", "2004"] as const)
     );
     expect(session.initialize()).toEqual(initialGame());
   });
+for (const version of ["1.2", "2004"] as const) {
+  it(`${version} reopening a completed normal-entry registration retains the result read-only`, () => {
+    const c = newCourse("Completed review");
+    c.levels[0].slides = [{ ...newSlide("Question"), kind: "single-choice" }];
+    const state = finishGame(
+        c,
+        answerQuestion(c, visit(c, initialGame(), 0), "a"),
+      ),
+      m = mock(version);
+    m.values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "";
+    m.values[
+      version === "1.2" ? "cmi.core.lesson_status" : "cmi.completion_status"
+    ] = version === "1.2" ? "passed" : "completed";
+    m.values[version === "1.2" ? "cmi.core.lesson_location" : "cmi.location"] =
+      "0";
+    m.values["cmi.suspend_data"] = ResumeStateSerializer.serialize(
+      state,
+      "review",
+      1,
+      1,
+      version,
+    );
+    const session = new ScormSessionManager(
+      version === "1.2"
+        ? new Scorm12Adapter(m.api)
+        : new Scorm2004Adapter(m.api),
+      c,
+      "review",
+    );
+    expect(session.initialize()).toEqual(state);
+    session.save(state);
+    expect(m.calls.filter((c) => c.startsWith("cmi."))).toEqual([]);
+    session.terminate(state);
+    expect(
+      m.values[
+        version === "1.2" ? "cmi.core.lesson_status" : "cmi.completion_status"
+      ],
+    ).toBe(version === "1.2" ? "passed" : "completed");
+  });
+  it(`${version} failed resume initialization terminates the opened API without writing progress`, () => {
+    const m = mock(version);
+    m.values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "resume";
+    m.values["cmi.suspend_data"] = "corrupt-state";
+    const session = new ScormSessionManager(
+      version === "1.2"
+        ? new Scorm12Adapter(m.api)
+        : new Scorm2004Adapter(m.api),
+      newCourse("Corrupt resume"),
+      "corrupt",
+    );
+    expect(() => session.initialize()).toThrow();
+    expect(m.calls).toContain(version === "1.2" ? "Finish" : "Terminate");
+    expect(m.calls.filter((c) => c.startsWith("cmi."))).toEqual([]);
+  });
+}
+for (const version of ["1.2", "2004"] as const)
+  it(`${version} rejects a forged finished resume that lacks mandatory competencies`, () => {
+    const c = newCourse("Mandatory");
+    c.levels[0].slides = [{ ...newSlide("Required"), kind: "single-choice" }];
+    const m = mock(version);
+    m.values[version === "1.2" ? "cmi.core.entry" : "cmi.entry"] = "resume";
+    m.values["cmi.suspend_data"] = ResumeStateSerializer.serialize(
+      { ...initialGame(), visited: [0], finished: true },
+      "mandatory",
+      1,
+      1,
+      version,
+    );
+    const session = new ScormSessionManager(
+      version === "1.2"
+        ? new Scorm12Adapter(m.api)
+        : new Scorm2004Adapter(m.api),
+      c,
+      "mandatory",
+    );
+    expect(() => session.initialize()).toThrow(/mandatory competency/);
+    expect(m.calls.filter((c) => c.startsWith("cmi."))).toEqual([]);
+  });
+it("2004 reports passed assessment independently of incomplete course navigation", () => {
+  const c = demoCourseForAssessment();
+  const m = mock("2004"),
+    session = new ScormSessionManager(
+      new Scorm2004Adapter(m.api),
+      c,
+      "separate",
+    );
+  let state = visit(c, session.initialize(), 0);
+  state = answerQuestion(c, state, "b");
+  session.save(state);
+  expect(m.values["cmi.success_status"]).toBe("failed");
+  state = answerQuestion(c, state, "a");
+  session.save(state);
+  expect(m.values["cmi.score.raw"]).toBe("100");
+  expect(m.values["cmi.success_status"]).toBe("passed");
+  expect(m.values["cmi.completion_status"]).toBe("incomplete");
+});
+function demoCourseForAssessment() {
+  const c = newCourse("Separate assessment");
+  c.levels[0].slides = [
+    { ...newSlide("Quiz"), kind: "single-choice" },
+    newSlide("Unvisited mandatory content"),
+  ];
+  return c;
+}

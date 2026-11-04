@@ -21,6 +21,10 @@ export class ScormSessionManager {
   private started = Date.now();
   private initialized = false;
   private ended = false;
+  private review = false;
+  get isReviewOnly() {
+    return this.review;
+  }
   readonly logs: string[] = [];
   constructor(
     private adapter: ScormAdapter,
@@ -29,45 +33,84 @@ export class ScormSessionManager {
   ) {}
   initialize() {
     this.adapter.initialize();
-    this.started = Date.now();
-    const entry = this.adapter.get(
-      this.adapter.version === "1.2" ? "cmi.core.entry" : "cmi.entry",
-    );
-    let state = initialGame();
-    if (entry === "resume") {
-      const data = this.adapter.get("cmi.suspend_data");
-      const location = this.adapter.get(
-        this.adapter.version === "1.2"
-          ? "cmi.core.lesson_location"
-          : "cmi.location",
+    try {
+      this.started = Date.now();
+      const entry = this.adapter.get(
+        this.adapter.version === "1.2" ? "cmi.core.entry" : "cmi.entry",
       );
-      if (data) {
-        state = ResumeStateSerializer.deserialize(
-          data,
-          this.fingerprint,
-          flatten(this.course).length,
-          this.course.levels.length,
-          this.adapter.version,
+      let state = initialGame();
+      let lmsCompleted = false;
+      if (entry !== "ab-initio") {
+        const status = this.adapter.get(
+          this.adapter.version === "1.2"
+            ? "cmi.core.lesson_status"
+            : "cmi.completion_status",
         );
-        if (
-          location &&
-          (!/^\d+$/.test(location) || Number(location) !== state.index)
-        )
-          throw new Error(
-            "LMS bookmark and resume state disagree. Start a new attempt or contact your LMS administrator.",
+        lmsCompleted =
+          this.adapter.version === "1.2"
+            ? ["passed", "completed", "failed"].includes(status)
+            : status === "completed";
+      }
+      if (entry === "resume" || lmsCompleted) {
+        const data = this.adapter.get("cmi.suspend_data");
+        const location = this.adapter.get(
+          this.adapter.version === "1.2"
+            ? "cmi.core.lesson_location"
+            : "cmi.location",
+        );
+        if (data) {
+          state = ResumeStateSerializer.deserialize(
+            data,
+            this.fingerprint,
+            flatten(this.course).length,
+            this.course.levels.length,
+            this.adapter.version,
           );
-      } else if (location)
-        throw new Error(
-          "LMS resume state is missing. Start a new attempt or contact your LMS administrator.",
-        );
+          if (
+            location &&
+            (!/^\d+$/.test(location) || Number(location) !== state.index)
+          )
+            throw new Error(
+              "LMS bookmark and resume state disagree. Start a new attempt or contact your LMS administrator.",
+            );
+        } else if (location || lmsCompleted)
+          throw new Error(
+            "LMS resume state is missing. Start a new attempt or contact your LMS administrator.",
+          );
+        if (state.finished && !assessment(this.course, state).eligible)
+          throw new Error(
+            "Saved completion does not satisfy mandatory competency requirements. Contact your LMS administrator.",
+          );
+        if (lmsCompleted) {
+          if (!state.finished || !assessment(this.course, state).eligible)
+            throw new Error(
+              "LMS completion and saved competency state disagree. Contact your LMS administrator.",
+            );
+          this.review = true;
+        }
+      }
+      this.initialized = true;
+      this.logs.push(
+        this.review
+          ? "Opened completed registration in read-only review"
+          : `Initialized SCORM ${this.adapter.version}`,
+      );
+      return state;
+    } catch (error) {
+      this.initialized = false;
+      this.ended = true;
+      try {
+        this.adapter.terminate();
+      } catch {
+        this.logs.push("Failed to close LMS API after initialization error");
+      }
+      throw error;
     }
-    this.initialized = true;
-    this.logs.push(`Initialized SCORM ${this.adapter.version}`);
-    return state;
   }
   save(state: LearnerGameState) {
     if (!this.initialized || this.ended)
       throw new Error("LMS session is not active");
+    if (this.review) return;
     const result = assessment(this.course, state),
       complete = state.finished && result.eligible;
     const data = ResumeStateSerializer.serialize(
@@ -104,11 +147,11 @@ export class ScormSessionManager {
       this.adapter.set("cmi.exit", complete ? "normal" : "suspend");
       this.adapter.set(
         "cmi.success_status",
-        result.success && complete
-          ? "passed"
-          : state.penalized.length
-            ? "failed"
-            : "unknown",
+        complete || result.assessmentComplete
+          ? result.success
+            ? "passed"
+            : "failed"
+          : "unknown",
       );
       this.adapter.set(
         "cmi.completion_status",

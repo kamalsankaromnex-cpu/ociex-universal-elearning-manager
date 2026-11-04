@@ -14,8 +14,8 @@
 
 ## Final automated checks
 
-- Unit/integration: **50 passed** (canonical model/game, both adapters, time formats, malformed/oversized resume, mandatory/optional pass/fail, schema/ZIP validation, stale exports).
-- Browser: **14 passed** (existing authoring/isolation suite, save-race/conflict guards, publishing UI, four version/scope package combinations, two multi-level recovery/retry/write-failure simulations, missing API).
+- Unit/integration: **67 passed** (canonical model/game, both adapters, time formats, malformed/oversized resume, mandatory/optional pass/fail, schema/ZIP validation, stale exports).
+- Browser: **22 passed** (existing authoring/isolation suite, save-race/conflict guards, publishing UI, four version/scope package combinations, two multi-level recovery/retry/write-failure simulations, missing API).
 - `npm run build`, `npm run lint`, `npm run typecheck`: passed.
 - Generated manifest report: [manifest-validation.json](../../deliverables/scorm/manifest-validation.json).
 - Database: original owned Daimler EHS course remains revision 1; all temporary test courses are removed. A full-course export currently contains the same one seeded level, but the multi-level browser fixture exercises combined-course behavior.
@@ -58,3 +58,7 @@ All LMS values in these screenshots came from explicit **simulated APIs**, not S
 ## Subsequent SCORM Cloud startup correction
 
 A user-provided Cloud launch reported read error 403 for uninitialized `cmi.location` and unknown completion/score at launch end. The adapter and fresh-entry startup have been corrected, tests now include an independent SCORM runtime and a 403-on-resume browser case, and all four ZIPs are regenerated. The patched packages still require a new real Cloud launch; see [the fix report and retest instructions](fix-uninitialized-bookmark.md).
+
+## Subsequent completion/resume reliability review
+
+The user supplied Level 01 SCORM Cloud completion/passed/100% evidence. Completed-registration review, failed-save warnings, browser-cache lifecycle, canonical finished-state protection and independent success/completion reporting were subsequently strengthened. All four training ZIPs are regenerated; two delivered non-training multi-level QA ZIPs support external validation. See [the current fix report and QA walkthrough](remaining-checks.md). No claim is made that this assistant executed the remaining scenarios in SCORM Cloud or Cornerstone.

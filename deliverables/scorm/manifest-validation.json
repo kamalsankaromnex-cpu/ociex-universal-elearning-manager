@@ -8,13 +8,13 @@
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
     "fingerprint": "76e810c381f6aa82eeecffc48549b3bf74d06fc87e42a4f4e1aa3d3548f6e50d",
-    "exportedAt": "2026-11-04T09:30:17.829Z",
+    "exportedAt": "2026-11-04T11:28:47.291Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 295921,
+    "bytes": 296369,
     "packagedFiles": 16
   },
   {
@@ -26,13 +26,13 @@
     "level": "Level 01 — EHS Vision & Strategy",
     "title": "Daimler EHS",
     "fingerprint": "08c73f5f241d213f40bb04d06ca573caf61c11f6a82a6b379269cb1b5e1702ee",
-    "exportedAt": "2026-11-04T09:30:18.087Z",
+    "exportedAt": "2026-11-04T11:28:47.566Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 310265,
+    "bytes": 310712,
     "packagedFiles": 29
   },
   {
@@ -44,13 +44,13 @@
     "level": null,
     "title": "Daimler EHS",
     "fingerprint": "e60f3f4daf6aff1664c58310911ddc0d286af9b18a1007370cf3058d0f546df6",
-    "exportedAt": "2026-11-04T09:30:18.136Z",
+    "exportedAt": "2026-11-04T11:28:47.616Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 295866,
+    "bytes": 296314,
     "packagedFiles": 16
   },
   {
@@ -62,13 +62,49 @@
     "level": null,
     "title": "Daimler EHS",
     "fingerprint": "d473a875a1490a38ded6c60006241d1aa63bc6a36d9e328a79760cb22514ed5b",
-    "exportedAt": "2026-11-04T09:30:18.184Z",
+    "exportedAt": "2026-11-04T11:28:47.666Z",
     "singleSco": true,
     "schemaValidation": {
       "valid": true,
       "errors": []
     },
-    "bytes": 310211,
+    "bytes": 310659,
+    "packagedFiles": 29
+  },
+  {
+    "file": "SCORM-Tracking-QA-SCORM-1.2.zip",
+    "publisher": "Coursecraft",
+    "format": "SCORM 1.2",
+    "revision": 1,
+    "scope": "course",
+    "level": null,
+    "title": "SCORM Tracking QA — not training content",
+    "fingerprint": "af7f9285c57e40d45737a7fc67d8a4dff2daf3d4152eab2b6ee3ccbd3c0152d9",
+    "exportedAt": "2026-11-04T11:28:47.714Z",
+    "singleSco": true,
+    "schemaValidation": {
+      "valid": true,
+      "errors": []
+    },
+    "bytes": 296379,
+    "packagedFiles": 16
+  },
+  {
+    "file": "SCORM-Tracking-QA-SCORM-2004-4th.zip",
+    "publisher": "Coursecraft",
+    "format": "SCORM 2004 4th Edition",
+    "revision": 1,
+    "scope": "course",
+    "level": null,
+    "title": "SCORM Tracking QA — not training content",
+    "fingerprint": "ec849e8743d24622c9fcc04649babf41001594d0e01e545d69bef4a02646787e",
+    "exportedAt": "2026-11-04T11:28:47.749Z",
+    "singleSco": true,
+    "schemaValidation": {
+      "valid": true,
+      "errors": []
+    },
+    "bytes": 310724,
     "packagedFiles": 29
   }
 ]

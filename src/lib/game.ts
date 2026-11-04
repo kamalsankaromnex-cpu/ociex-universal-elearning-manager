@@ -56,6 +56,11 @@ export function assessment(course: CourseData, state: LearnerGameState) {
     eligible: slides.length > 0 && mandatory && visited && state.life > 0,
     score,
     success: score >= (course.rules?.passScore ?? 80),
+    assessmentComplete:
+      questions.length > 0 &&
+      questions.every(
+        (i) => state.passed.includes(i) || state.penalized.includes(i),
+      ),
     progress: slides.length ? state.visited.length / slides.length : 0,
   };
 }
@@ -84,6 +89,7 @@ export function visit(
 ) {
   const slides = flatten(course);
   if (index < 0 || index >= slides.length || state.life === 0) return state;
+  if (state.finished) return { ...state, index };
   return award(course, {
     ...state,
     index,
@@ -97,6 +103,7 @@ export function answerQuestion(
 ) {
   const slide = flatten(course)[state.index];
   if (
+    state.finished ||
     !slide ||
     slide.kind !== "single-choice" ||
     state.life === 0 ||
@@ -122,6 +129,7 @@ export function answerQuestion(
 export function recoverLife(course: CourseData, state: LearnerGameState) {
   const slide = flatten(course)[state.index];
   if (
+    state.finished ||
     !slide ||
     slide.kind !== "recovery" ||
     state.life === 0 ||
@@ -138,6 +146,7 @@ export function recoverLife(course: CourseData, state: LearnerGameState) {
   });
 }
 export function retryLevel(course: CourseData, state: LearnerGameState) {
+  if (state.finished) return state;
   const slides = flatten(course),
     level = slides[state.index]?.levelIndex;
   if (level === undefined) return state;
