@@ -1,8 +1,8 @@
 [
   {
     "file": "Daimler-EHS-Game-Experience-SCORM-1.2.zip",
-    "sha256": "b9002084bcead253cd5a35756c67c0e714bfe6d053706be3a2da69243ad7cfa1",
-    "bytes": 343302,
+    "sha256": "ea3a94d84ce42c42b9a6118e80d5f66acd3da0a325e0d577d4066109acab7b3a",
+    "bytes": 343388,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 1.2",
@@ -10,8 +10,8 @@
       "scope": "course",
       "level": null,
       "title": "DICV EHS Refresher Training — Safety eModule",
-      "fingerprint": "671ade476fc5d7f7b2cc618f692b7c5b292b8d326800bfa67d0481442f51c744",
-      "exportedAt": "2026-11-04T17:46:32.954Z",
+      "fingerprint": "17230654544537d3e11fa21139055942b5ba3c9c209428acec8bfcd86de4b003",
+      "exportedAt": "2026-11-05T00:14:59.619Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {
@@ -40,8 +40,8 @@
   },
   {
     "file": "Daimler-EHS-Game-Experience-SCORM-2004-4th.zip",
-    "sha256": "ec35aa2b8197b403a75b3171e92a955fc2942bc21a1d68e51dab373bc413f041",
-    "bytes": 357643,
+    "sha256": "b011c1837eaab0fc3142738c2ffa0b1458a05a6f510003edf16dc9f3e248b2d7",
+    "bytes": 357722,
     "metadata": {
       "publisher": "Coursecraft",
       "format": "SCORM 2004 4th Edition",
@@ -49,8 +49,8 @@
       "scope": "course",
       "level": null,
       "title": "DICV EHS Refresher Training — Safety eModule",
-      "fingerprint": "2f509edf146512ca8a77b3087ef37b0c7ad3f261c8f94c3ab191da47b80b3b46",
-      "exportedAt": "2026-11-04T17:46:33.779Z",
+      "fingerprint": "e48e8f855602622aba7cff76a32a2de5eac656bdfa1ba6e4e4ff1d829c0e2800",
+      "exportedAt": "2026-11-05T00:15:00.452Z",
       "singleSco": true,
       "publisherVersion": "composer.1",
       "scoringPolicy": {

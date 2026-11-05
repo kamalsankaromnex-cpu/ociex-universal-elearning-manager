@@ -3,6 +3,7 @@
 import {
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -384,7 +385,7 @@ function ComposerQuestion({
   onSubmit: (ids: string[]) => void;
   onRetry: () => void;
 }) {
-  const q = questionSlide(slide, block),
+  const q = useMemo(() => questionSlide(slide, block), [slide, block]),
     answer = state.composer?.answers[block.id],
     help = useId();
   const [draft, setDraft] = useState(() =>
@@ -392,7 +393,7 @@ function ComposerQuestion({
   );
   useEffect(() => {
     setDraft(selectionIds(q, answer?.selection ?? 0));
-  }, [answer?.selection, answer?.last, q]);
+  }, [answer?.selection, answer?.last, block.id, q]);
   const disabled = state.finished || state.life === 0;
 
   function renderOptionIcon(id: string) {
@@ -485,6 +486,7 @@ function ComposerQuestion({
           }
           disabled={disabled || !draft.length}
           data-composer-submit={block.id}
+          aria-label="Submit activity"
           onClick={() => onSubmit(draft)}
         >
           <span>Submit</span>

@@ -93,7 +93,7 @@ export function QuestionOptionsEditor({
             </legend>
             <div className="option-edit">
               <TextField
-                label={letter}
+                label={isSeq ? letter : `Option ${letter}`}
                 value={option.text}
                 onChange={(e) =>
                   onChange({

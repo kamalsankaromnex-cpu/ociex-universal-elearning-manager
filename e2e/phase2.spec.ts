@@ -197,7 +197,7 @@ test("publishing endpoints enforce ownership, origins, edition matching and fail
     },
   });
   const outsider = await playwright.request.newContext({
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.APP_ORIGIN || "http://localhost:3100",
   });
   try {
     const publish = await page.request.post(

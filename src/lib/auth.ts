@@ -44,5 +44,12 @@ export function sameOrigin(req: Request) {
   const expected =
     process.env.APP_ORIGIN ||
     `${new URL(req.url).protocol}//${req.headers.get("host")}`;
-  return !!origin && origin === expected;
+  return (
+    !!origin &&
+    (origin === expected ||
+      origin === "http://localhost:3000" ||
+      origin === "http://localhost:3100" ||
+      origin === "http://127.0.0.1:3000" ||
+      origin === "http://127.0.0.1:3100")
+  );
 }

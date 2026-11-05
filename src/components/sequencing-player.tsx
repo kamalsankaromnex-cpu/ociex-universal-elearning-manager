@@ -182,6 +182,7 @@ export function SequencingPlayer({
           className="game-submit-btn"
           disabled={disabled || !isComplete}
           data-composer-submit={block.id}
+          aria-label="Submit activity"
           onClick={() => onSubmit(placed)}
         >
           <span>Submit</span>

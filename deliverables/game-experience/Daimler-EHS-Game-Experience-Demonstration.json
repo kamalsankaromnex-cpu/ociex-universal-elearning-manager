@@ -2,7 +2,7 @@
   "title": "DICV EHS Refresher Training — Safety eModule",
   "description": "Illustrated 2D game-based safety learning experience featuring DICV Safety Culture, Vision Zero, Machine Guarding, and Committee Governance.",
   "rules": {
-    "penalty": 20,
+    "penalty": 25,
     "recovery": 25,
     "passScore": 75,
     "optionalScoring": "include",
@@ -244,7 +244,7 @@
                   "scoringMode": "all-or-nothing",
                   "mandatory": true,
                   "scored": true,
-                  "lifePenalty": 20
+                  "lifePenalty": 25
                 }
               },
               {
@@ -426,7 +426,7 @@
                   "scoringMode": "all-or-nothing",
                   "mandatory": true,
                   "scored": true,
-                  "lifePenalty": 20
+                  "lifePenalty": 25
                 }
               },
               {
@@ -630,7 +630,7 @@
                   "scoringMode": "all-or-nothing",
                   "mandatory": true,
                   "scored": true,
-                  "lifePenalty": 20
+                  "lifePenalty": 25
                 }
               },
               {

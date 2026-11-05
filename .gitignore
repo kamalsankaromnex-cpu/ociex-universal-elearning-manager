@@ -8,3 +8,5 @@ artifacts/
 *.tsbuildinfo
 playwright-report/
 test-results/
+
+.pglite-data/

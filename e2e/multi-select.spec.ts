@@ -64,6 +64,13 @@ test.afterAll(async () => {
 });
 async function login(page: Page) {
   await page.goto("/");
+  const emailInput = page.getByLabel("Email address");
+  const coursesHeading = page.getByRole("heading", {
+    name: "Your courses",
+    exact: true,
+  });
+  await expect(emailInput.or(coursesHeading)).toBeVisible();
+  if (await coursesHeading.isVisible()) return;
   await page.getByLabel("Email address").fill(process.env.ADMIN_EMAIL!);
   await page
     .getByLabel("Password", { exact: true })
@@ -75,7 +82,7 @@ async function login(page: Page) {
 }
 async function create(page: Page, title: string) {
   const response = await page.request.post("/api/courses", {
-    headers: { origin: "http://localhost:3000" },
+    headers: { origin: process.env.APP_ORIGIN || "http://localhost:3100" },
     data: newCourse(title),
   });
   expect(response.status()).toBe(201);

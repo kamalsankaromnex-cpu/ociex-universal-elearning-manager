@@ -2201,6 +2201,15 @@ footer svg {
   }
   .stats {
     gap: 8px;
+    min-width: 0;
+  }
+  .game-life-meter {
+    padding: 4px 10px;
+    gap: 8px;
+    max-width: 100%;
+  }
+  .life-meter-track {
+    width: 60px;
     margin-bottom: 27px;
   }
   .stat-card {
@@ -2346,7 +2355,9 @@ footer svg {
     grid-template-columns: 1fr;
   }
   .learner-header {
-    padding: 20px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   .learner-header strong {
     font-size: 18px;
@@ -2356,6 +2367,15 @@ footer svg {
   }
   .learner-header > div {
     gap: 8px;
+    min-width: 0;
+  }
+  .game-life-meter {
+    padding: 4px 10px;
+    gap: 8px;
+    max-width: 100%;
+  }
+  .life-meter-track {
+    width: 60px;
   }
   .life progress {
     display: none;

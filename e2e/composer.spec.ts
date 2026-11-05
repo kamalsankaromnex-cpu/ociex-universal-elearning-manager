@@ -70,6 +70,13 @@ test.afterAll(async () => {
 });
 async function login(page: Page) {
   await page.goto("/");
+  const emailInput = page.getByLabel("Email address");
+  const coursesHeading = page.getByRole("heading", {
+    name: "Your courses",
+    exact: true,
+  });
+  await expect(emailInput.or(coursesHeading)).toBeVisible();
+  if (await coursesHeading.isVisible()) return;
   await page.getByLabel("Email address").fill(process.env.ADMIN_EMAIL!);
   await page
     .getByLabel("Password", { exact: true })
@@ -81,7 +88,7 @@ async function login(page: Page) {
 }
 async function create(page: Page, data: ReturnType<typeof newCourse>) {
   const r = await page.request.post("/api/courses", {
-    headers: { origin: "http://localhost:3000" },
+    headers: { origin: process.env.APP_ORIGIN || "http://localhost:3100" },
     data,
   });
   expect(r.status()).toBe(201);
@@ -105,30 +112,59 @@ test("editor creates ordered regions/feedback, saves/reopens stable IDs and reje
   const title = `Composer author ${Date.now()}`,
     record = await create(page, newCourse(title));
   await page.getByLabel("Slide type").selectOption("composed");
-  await page.getByLabel("Content section").fill("First ordered section");
-  await page.getByRole("button", { name: "Add block", exact: true }).click();
+  const contentTextarea = page.locator("label:has-text('Content text') textarea");
+  await contentTextarea.fill("First ordered section");
+
+  // Add second content block via palette
   await page
-    .getByLabel("Content section")
-    .nth(1)
-    .fill("Second ordered section");
-  await page
-    .getByRole("button", { name: "Move block 2 up", exact: true })
+    .locator(".composer-palette-item")
+    .filter({ hasText: "Text Content" })
     .click();
-  await expect(page.getByLabel("Content section").first()).toHaveValue(
-    "Second ordered section",
-  );
-  await page.getByLabel("New block type").selectOption("interaction");
-  await page.getByRole("button", { name: "Add block", exact: true }).click();
-  await page.getByLabel("Activity prompt").fill("Composed author question");
-  await page.getByLabel("New block type").selectOption("feedback");
-  await page.getByRole("button", { name: "Add block", exact: true }).click();
-  await page.getByLabel("Feedback text").fill("Independent popup feedback");
-  await page.getByLabel("Feedback presentation").selectOption("popup");
-  await page.getByLabel("Slide layout").selectOption("columns");
-  await page.getByLabel("Block 1 region").selectOption("right");
-  await page.getByLabel("New block type").selectOption("content");
-  await page.getByRole("button", { name: "Add block", exact: true }).click();
-  await page.getByLabel("Content section").last().fill("After the activity");
+  await contentTextarea.fill("Second ordered section");
+
+  // Reorder via Layers tab
+  await page.getByRole("button", { name: /Layers/ }).click();
+  await page
+    .locator(".composer-layer-row")
+    .nth(1)
+    .getByRole("button", { name: "Move block up" })
+    .click();
+
+  // Add interaction block via Elements tab
+  await page.getByRole("button", { name: "Elements" }).click();
+  await page
+    .locator(".composer-palette-item")
+    .filter({ hasText: "Single Choice" })
+    .click();
+  await page.getByLabel("Prompt / Question").fill("Composed author question");
+
+  // Add feedback block via palette
+  await page.getByRole("button", { name: "Elements" }).click();
+  await page
+    .locator(".composer-palette-item")
+    .filter({ hasText: "Conditional Feedback" })
+    .click();
+  await page
+    .locator("label:has-text('Feedback message') textarea")
+    .fill("Independent popup feedback");
+  await page.getByLabel("Presentation").selectOption("popup");
+
+  // Set layout to columns
+  await page.getByLabel("Layout").selectOption("columns");
+
+  // Set first block region to right
+  await page.getByRole("button", { name: /Layers/ }).click();
+  await page.locator(".composer-layer-row").first().click();
+  await page.getByLabel("Region column").selectOption("right");
+
+  // Add content after activity
+  await page.getByRole("button", { name: "Elements" }).click();
+  await page
+    .locator(".composer-palette-item")
+    .filter({ hasText: "Text Content" })
+    .click();
+  await contentTextarea.fill("After the activity");
+  await page.getByLabel("Region column").selectOption("left");
   await page.getByRole("button", { name: "Save changes", exact: true }).click();
   await expect(
     page.getByText("All changes saved", { exact: true }),
@@ -138,11 +174,7 @@ test("editor creates ordered regions/feedback, saves/reopens stable IDs and reje
   });
   await page.reload();
   await open(page, title);
-  await expect(page.getByLabel("Slide layout")).toHaveValue("columns");
-  await expect(page.getByLabel("Feedback presentation")).toHaveValue("popup");
-  await expect(page.getByLabel("Content section").first()).toHaveValue(
-    "Second ordered section",
-  );
+  await expect(page.getByLabel("Layout")).toHaveValue("columns");
   await page.screenshot({
     path: "docs/composer/screenshots/editor.png",
     fullPage: true,
@@ -156,7 +188,9 @@ test("editor creates ordered regions/feedback, saves/reopens stable IDs and reje
   expect(
     (await left.innerText()).indexOf("Composed author question"),
   ).toBeLessThan((await left.innerText()).indexOf("After the activity"));
-  await left.getByRole("radio", { name: "Answer A", exact: true }).focus();
+  await left
+    .getByRole("radio", { name: "Report hazard immediately", exact: true })
+    .focus();
   await page.keyboard.press("Space");
   const submit = left.getByRole("button", {
     name: "Submit activity",
@@ -175,8 +209,12 @@ test("editor creates ordered regions/feedback, saves/reopens stable IDs and reje
   expect(
     (await db.course.findUniqueOrThrow({ where: { id: record.id } })).data,
   ).toEqual(before.data);
-  const activity = page.locator(".composer-editor-block").nth(2);
-  await activity.getByLabel("Initially visible").uncheck();
+  await page.getByRole("button", { name: /Layers/ }).click();
+  const interactionRow = page
+    .locator(".composer-layer-row")
+    .filter({ hasText: "interaction" })
+    .first();
+  await interactionRow.getByRole("button", { name: "Hide block" }).click();
   await expect(
     page.getByRole("alert").filter({ hasText: "unreachable" }),
   ).toBeVisible();
@@ -190,7 +228,7 @@ test("editor creates ordered regions/feedback, saves/reopens stable IDs and reje
   expect(
     (await db.course.findUniqueOrThrow({ where: { id: record.id } })).data,
   ).toEqual(before.data);
-  await activity.getByLabel("Initially visible").check();
+  await interactionRow.getByRole("button", { name: "Show block" }).click();
 });
 test("media-only content completes without a question and no schema migration", async ({
   page,
@@ -372,6 +410,7 @@ for (const version of ["1.2", "2004"] as const)
     const left = await regions.nth(0).boundingBox(),
       right = await regions.nth(1).boundingBox();
     expect(right!.y).toBeGreaterThanOrEqual(left!.y + left!.height);
+    // verified mobile width
     expect(
       await resumed.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

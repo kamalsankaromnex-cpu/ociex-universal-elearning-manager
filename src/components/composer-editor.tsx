@@ -592,7 +592,7 @@ export function ComposerEditor({
                           correctId: "opt1",
                           mandatory: true,
                           scored: true,
-                          lifePenalty: 20,
+                          lifePenalty: 25,
                         },
                       })
                     }
@@ -623,7 +623,7 @@ export function ComposerEditor({
                           scoringMode: "all-or-nothing",
                           mandatory: true,
                           scored: true,
-                          lifePenalty: 20,
+                          lifePenalty: 25,
                         },
                       })
                     }
@@ -656,7 +656,7 @@ export function ComposerEditor({
                           scoringMode: "all-or-nothing",
                           mandatory: true,
                           scored: true,
-                          lifePenalty: 20,
+                          lifePenalty: 25,
                         },
                       })
                     }

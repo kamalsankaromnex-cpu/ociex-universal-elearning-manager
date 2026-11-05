@@ -174,13 +174,13 @@ describe("visual composer & game-style interactions", () => {
     const q2Block = s2.composition!.blocks.find((b) => b.kind === "interaction");
     expect(q2Block).toBeDefined();
 
-    // Partial/wrong submission costs 20% life
+    // Partial/wrong submission costs 25% life (Daimler approved default)
     const wrongSub = normalizeSubmission(
       questionSlide(s2, q2Block as InteractionBlock),
       ["inj"],
     );
     state = submitQuestion(course, state, wrongSub);
-    expect(state.life).toBe(80);
+    expect(state.life).toBe(75);
 
     // Correct submission of all 5 options completes the slide
     const correctSub = normalizeSubmission(
@@ -188,7 +188,7 @@ describe("visual composer & game-style interactions", () => {
       ["inj", "eqp", "prd", "env", "fin"],
     );
     state = submitQuestion(course, state, correctSub);
-    expect(state.life).toBe(80); // No duplicate penalty
+    expect(state.life).toBe(75); // No duplicate penalty
     expect(composerComplete(s2, state, 1)).toBe(true);
 
     // Slide 3: Single-choice committee question

@@ -34,7 +34,7 @@ export function createQuestionBlock(
   correct: string | string[],
   region = "main",
   scoringMode: "all-or-nothing" | "partial-credit" = "all-or-nothing",
-  lifePenalty = 20,
+  lifePenalty = 25,
 ): InteractionBlock {
   const block = newBlock("interaction", region);
   if (block.kind !== "interaction") throw Error("Invalid interaction block");
@@ -95,7 +95,7 @@ export function daimlerEhsDemoCourse(): CourseData {
     showLogo: true,
   };
   c.rules = {
-    penalty: 20,
+    penalty: 25,
     recovery: 25,
     passScore: 75,
     optionalScoring: "include",
@@ -190,7 +190,7 @@ export function daimlerEhsDemoCourse(): CourseData {
     ["inj", "eqp", "prd", "env", "fin"],
     "main",
     "all-or-nothing",
-    20,
+    25,
   );
   const d2FeedbackCorrect = createFeedbackBlock(
     "d2:fb-correct",
@@ -287,7 +287,7 @@ export function daimlerEhsDemoCourse(): CourseData {
     "apex",
     "main",
     "all-or-nothing",
-    20,
+    25,
   );
   const d2bFeedbackCorrect = createFeedbackBlock(
     "d2b:fb-correct",
@@ -397,7 +397,7 @@ export function daimlerEhsDemoCourse(): CourseData {
     ["react", "dep", "indep", "interdep"],
     "main",
     "all-or-nothing",
-    20,
+    25,
   );
   const d3SeqFeedbackCorrect = createFeedbackBlock(
     "d3:fb-correct",
