@@ -49,7 +49,9 @@ export function sameOrigin(req: Request) {
     (origin === expected ||
       origin === "http://localhost:3000" ||
       origin === "http://localhost:3100" ||
+      origin === "http://localhost:6666" ||
       origin === "http://127.0.0.1:3000" ||
-      origin === "http://127.0.0.1:3100")
+      origin === "http://127.0.0.1:3100" ||
+      origin === "http://127.0.0.1:6666")
   );
 }

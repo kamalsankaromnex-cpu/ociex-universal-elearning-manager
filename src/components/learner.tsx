@@ -10,6 +10,10 @@ import {
   XCircle,
   Layers,
   Star,
+  BookOpen,
+  HelpCircle,
+  Home,
+  HeartPulse,
 } from "lucide-react";
 import {
   isQuestion,
@@ -214,50 +218,174 @@ export function Learner({
           )}
         </div>
       )}
-      <header className={`learner-header ${t.style === "game" ? "game-header" : ""}`}>
-        <div>
-          {t.style === "game" ? (
-            <div className="game-brand-pill">
-              <DaimlerVehicleIcon className="game-truck-icon" />
-              <div className="game-title-group">
+      {t.style === "game" ? (
+        <header className="learner-header game-header dicv-hud-header">
+          {/* Top White HUD Card */}
+          <div className="dicv-hud-card">
+            {/* 1. Left Brand / Logo Slot */}
+            <div className="dicv-hud-brand">
+              <span className="game-brand-pill sr-only">
+                <DaimlerVehicleIcon className="game-truck-icon" />
                 <span className="game-main-title">{course.header.title}</span>
-                <span className="game-title-separator">|</span>
-                <span className="game-sub-title">{slide?.levelTitle || course.header.subtitle}</span>
-              </div>
+                <span className="game-sub-title">
+                  {slide?.levelTitle || course.header.subtitle}
+                </span>
+              </span>
+              {course.header.showLogo && t.logo ? (
+                <img
+                  src={t.logo}
+                  alt={course.header.title || "Course logo"}
+                  className="dicv-header-logo-img"
+                />
+              ) : (
+                <div className="dicv-brand-text">
+                  <span className="dicv-brand-title">DICV</span>
+                  <span className="dicv-brand-sub">EHS TRAINING</span>
+                </div>
+              )}
             </div>
-          ) : (
-            <>
-              {course.header.showLogo &&
-                (t.logo ? <img src={t.logo} alt="Course logo" /> : <Layers />)}
-              <div>
-                <strong>{course.header.title}</strong>
-                <small>{course.header.subtitle}</small>
-              </div>
-            </>
-          )}
-        </div>
-        {course.header.showLife && (
-          <div className="life game-life-meter">
-            <Heart className="heart-icon-beat" />
-            <span>
-              Life Meter <strong data-testid="life">{game.life}%</strong>
-            </span>
-            <div className="life-meter-track" aria-hidden="true">
-              <div
-                className="life-meter-fill"
-                style={{ width: `${game.life}%` }}
-              />
-            </div>
-            {t.style === "game" && (
-              <div className="game-star-counter">
-                <Star className="star-icon-gold" />
-                <span>{game.stars.length}/{course.levels.length || 6}</span>
+
+            <div className="dicv-hud-divider" aria-hidden="true" />
+
+            {/* 2. Center Life Meter Slot */}
+            {course.header.showLife && (
+              <div className="dicv-hud-life game-life-meter">
+                <div className="dicv-life-meta">
+                  <div className="dicv-life-label">
+                    <HeartPulse className="dicv-heart-pulse-icon" />
+                    <span>Life</span>
+                  </div>
+                  <strong data-testid="life" className="dicv-life-val">
+                    {game.life}%
+                  </strong>
+                </div>
+                <div className="dicv-life-track" aria-hidden="true">
+                  <div
+                    className="dicv-life-fill"
+                    style={{ width: `${game.life}%` }}
+                  />
+                </div>
+                <progress
+                  className="sr-only"
+                  value={game.life}
+                  max={100}
+                  aria-label="Life"
+                />
               </div>
             )}
-            <progress className="sr-only" value={game.life} max={100} aria-label="Life" />
+
+            <div className="dicv-hud-divider" aria-hidden="true" />
+
+            {/* 3. Stars / Challenges Slot */}
+            <div className="dicv-hud-stars game-star-counter">
+              <div className="dicv-stars-header">
+                <Star className="dicv-star-badge" />
+                <span>Stars</span>
+              </div>
+              <div
+                className="dicv-stars-row"
+                aria-label={`${game.stars.length} of ${course.levels.length || 6} stars earned`}
+              >
+                {Array.from({ length: 6 }).map((_, starIdx) => {
+                  const earned = starIdx < game.stars.length;
+                  return (
+                    <Star
+                      key={starIdx}
+                      className={`dicv-mini-star ${earned ? "earned" : "unearned"}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="dicv-stars-count">
+                {game.stars.length} / {course.levels.length || 6} earned
+              </div>
+            </div>
+
+            <div className="dicv-hud-divider" aria-hidden="true" />
+
+            {/* 4. Far Right Utility Controls */}
+            <div className="dicv-hud-actions">
+              <button
+                type="button"
+                className="dicv-hud-action-btn"
+                title="Curriculum & Topics"
+                aria-label="Curriculum and Topics"
+                onClick={() => {
+                  if (canNavigate(course, game, 0)) go(0);
+                }}
+              >
+                <BookOpen size={18} />
+              </button>
+              <button
+                type="button"
+                className="dicv-hud-action-btn"
+                title="Safety Instructions"
+                aria-label="Safety Instructions"
+                onClick={() => {
+                  alert(
+                    "DICV Safety Guidelines: Complete all required activities, maintain your Life Meter above 0%, and navigate through each station to achieve certification.",
+                  );
+                }}
+              >
+                <HelpCircle size={18} />
+              </button>
+              <button
+                type="button"
+                className="dicv-hud-action-btn"
+                title="Course Overview / Home"
+                aria-label="Course Overview / Home"
+                onClick={() => {
+                  if (canNavigate(course, game, 0)) go(0);
+                }}
+              >
+                <Home size={18} />
+              </button>
+            </div>
           </div>
-        )}
-      </header>
+
+          {/* Crisp Daimler Red Accent Stripe */}
+          <div className="dicv-red-stripe" aria-hidden="true" />
+
+          {/* Deep Navy Breadcrumb Sub-Header */}
+          <nav className="dicv-breadcrumb-bar" aria-label="Course breadcrumb">
+            <span className="dicv-crumb">Home</span>
+            <span className="dicv-crumb-separator" aria-hidden="true">
+              &gt;
+            </span>
+            <span className="dicv-crumb">
+              {slide?.levelTitle ||
+                course.header.subtitle ||
+                "Level 1 – Safety Culture"}
+            </span>
+            <span className="dicv-crumb-separator" aria-hidden="true">
+              &gt;
+            </span>
+            <strong className="dicv-crumb-active">
+              {slide?.title || "Why Safety is Important"}
+            </strong>
+          </nav>
+        </header>
+      ) : (
+        <header className="learner-header">
+          <div>
+            {course.header.showLogo &&
+              (t.logo ? <img src={t.logo} alt="Course logo" /> : <Layers />)}
+            <div>
+              <strong>{course.header.title}</strong>
+              <small>{course.header.subtitle}</small>
+            </div>
+          </div>
+          {course.header.showLife && (
+            <div className="life">
+              <Heart />
+              <span>
+                Life <strong data-testid="life">{game.life}%</strong>
+              </span>
+              <progress value={game.life} max={100} />
+            </div>
+          )}
+        </header>
+      )}
       <div className="learner-body">
         <aside className="learner-nav">
           <small>YOUR LEARNING JOURNEY</small>
